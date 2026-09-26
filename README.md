@@ -13,8 +13,7 @@ CineSense is a movie recommendation app scaffold. The approved stack is Next.js,
 ## Prerequisites
 
 - Docker Desktop with Docker Compose enabled.
-- Node.js and npm (needed by `init.sh`; containers install app dependencies during build).
-- Git Bash on Windows to run `init.sh`.
+- PowerShell for the commands below on Windows, or a shell with Docker Compose.
 
 ## Local development
 
@@ -27,13 +26,13 @@ Copy-Item frontend/.env.local.example frontend/.env.local
 
 Set a valid TMDB API key in `backend/.env` if you need TMDB access. Keep local `.env` files out of Git; only the example templates are committed. Compose uses development defaults for PostgreSQL and the internal backend connection.
 
-Validate the setup:
+Validate the Compose configuration:
 
-```bash
-./init.sh
+```powershell
+docker compose config --quiet
 ```
 
-On Windows, run it from Git Bash (for example, `"C:\Program Files\Git\bin\bash.exe" -c "./init.sh"`) with the repository root as the working directory.
+The agent workflow files (`AGENTS.md`, `init.sh`, `feature_list.json`, and `claude-progress.md`) are local workspace files and are not included in a Git checkout. If your workspace provides `init.sh`, you can also run it from the repository root using Git Bash on Windows.
 
 Start the stack from PowerShell. If host port 3000 is already in use, select another port such as 3002:
 
@@ -47,6 +46,7 @@ Apply the initial Prisma migration and validate the schema in the backend contai
 ```powershell
 docker compose exec backend npx prisma migrate deploy
 docker compose exec backend npx prisma validate
+docker compose exec backend npx prisma migrate status
 ```
 
 Open the services:
