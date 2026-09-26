@@ -1,0 +1,95 @@
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "postgresql"
+  url      = env("DATABASE_URL")
+}
+
+model User {
+  id           String         @id @default(uuid()) @db.Uuid
+  name         String         @db.VarChar
+  email        String         @unique @db.VarChar
+  passwordHash String         @map("password_hash") @db.VarChar
+  avatarUrl    String?        @map("avatar_url") @db.VarChar
+  createdAt    DateTime       @default(now()) @map("created_at") @db.Timestamp(6)
+  watchHistory WatchHistory[]
+  watchlists   Watchlist[]
+  ratings      Rating[]
+
+  @@map("users")
+}
+
+model Movie {
+  id            String         @id @default(uuid()) @db.Uuid
+  tmdbId        Int            @unique @map("tmdb_id")
+  title         String         @db.VarChar
+  overview      String         @db.Text
+  averageRating Float          @map("average_rating") @db.DoublePrecision
+  posterUrl     String         @map("poster_url") @db.VarChar
+  releaseDate   DateTime       @map("release_date") @db.Date
+  genres        MovieGenre[]
+  watchHistory  WatchHistory[]
+  watchlists    Watchlist[]
+  ratings       Rating[]
+
+  @@map("movies")
+}
+
+model Genre {
+  id     Int          @id @default(autoincrement())
+  name   String       @db.VarChar
+  movies MovieGenre[]
+
+  @@map("genres")
+}
+
+model MovieGenre {
+  movieId String @map("movie_id") @db.Uuid
+  genreId Int    @map("genre_id")
+  movie   Movie  @relation(fields: [movieId], references: [id])
+  genre   Genre  @relation(fields: [genreId], references: [id])
+
+  @@id([movieId, genreId])
+  @@index([genreId], map: "movie_genres_genre_id_idx")
+  @@map("movie_genres")
+}
+
+model WatchHistory {
+  id        String   @id @default(uuid()) @db.Uuid
+  userId    String   @map("user_id") @db.Uuid
+  movieId   String   @map("movie_id") @db.Uuid
+  watchedAt DateTime @default(now()) @map("watched_at") @db.Timestamp(6)
+  user      User     @relation(fields: [userId], references: [id])
+  movie     Movie    @relation(fields: [movieId], references: [id])
+
+  @@index([userId, watchedAt(sort: Desc)], map: "watch_history_user_id_watched_at_idx")
+  @@map("watch_history")
+}
+
+model Watchlist {
+  id      String   @id @default(uuid()) @db.Uuid
+  userId  String   @map("user_id") @db.Uuid
+  movieId String   @map("movie_id") @db.Uuid
+  addedAt DateTime @default(now()) @map("added_at") @db.Timestamp(6)
+  user    User     @relation(fields: [userId], references: [id])
+  movie   Movie    @relation(fields: [movieId], references: [id])
+
+  @@unique([userId, movieId], map: "watchlists_user_id_movie_id_key")
+  @@index([userId], map: "watchlists_user_id_idx")
+  @@map("watchlists")
+}
+
+model Rating {
+  id        String   @id @default(uuid()) @db.Uuid
+  userId    String   @map("user_id") @db.Uuid
+  movieId   String   @map("movie_id") @db.Uuid
+  score     Int      @db.SmallInt
+  createdAt DateTime @default(now()) @map("created_at") @db.Timestamp(6)
+  user      User     @relation(fields: [userId], references: [id])
+  movie     Movie    @relation(fields: [movieId], references: [id])
+
+  @@index([userId, movieId], map: "ratings_user_id_movie_id_idx")
+  @@map("ratings")
+}
