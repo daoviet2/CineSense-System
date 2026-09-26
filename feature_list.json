@@ -15,8 +15,8 @@
       "name": "Setup Docker & docker-compose",
       "description": "Viết Dockerfile cho frontend và backend (dev mode), docker-compose.yml gồm service postgres + backend + frontend (recommendation-service comment sẵn, chưa bật). Volume cho postgres data. Network nội bộ giữa các service.",
       "dependencies": ["feat-001"],
-      "status": "not-started",
-      "evidence": ""
+      "status": "done",
+      "evidence": "Added dev Dockerfiles and lockfile-based npm ci manifests for Next.js/Express, docker-compose.yml with Postgres, backend, frontend, healthchecks, internal network, persistent DB volume, and disabled optional recommendation-service. docker compose config passed; both npm ci installs, npm audit (0 vulnerabilities for each app), Next.js production build, backend node --check, backend /health on port 4001, and frontend HTTP 200 smoke test passed. Docker Engine is unavailable, so image build and compose up remain unverified."
     },
     {
       "id": "feat-003",
