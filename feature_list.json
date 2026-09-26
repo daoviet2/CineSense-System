@@ -1,0 +1,46 @@
+{
+  "phase": "Giai đoạn 0 — Chuẩn bị",
+  "phase_source": "docs/KE_HOACH_DU_AN.md#giai-đoạn-0--chuẩn-bị-1-tuần",
+  "features": [
+    {
+      "id": "feat-001",
+      "name": "Khởi tạo cấu trúc monorepo",
+      "description": "Tạo cây thư mục gốc theo docs/CAU_TRUC_DU_AN.md: frontend/, backend/, recommendation-service/ (rỗng, optional), docs/ (copy 4 file kế hoạch vào đây), .gitignore, README.md, git init + commit đầu tiên.",
+      "dependencies": [],
+      "status": "done",
+      "evidence": "Created frontend/ and backend/; confirmed docs/ already contains the four project documents; added README.md and .gitignore; initialized Git. Verification passed: test -d frontend && test -d backend && test -d docs; git check-ignore confirms backend/.env and frontend/.env.local are ignored while both env example files remain trackable. Git Bash ./init.sh exits successfully; it reports only expected pending feat-002/003/004 warnings."
+    },
+    {
+      "id": "feat-002",
+      "name": "Setup Docker & docker-compose",
+      "description": "Viết Dockerfile cho frontend và backend (dev mode), docker-compose.yml gồm service postgres + backend + frontend (recommendation-service comment sẵn, chưa bật). Volume cho postgres data. Network nội bộ giữa các service.",
+      "dependencies": ["feat-001"],
+      "status": "not-started",
+      "evidence": ""
+    },
+    {
+      "id": "feat-003",
+      "name": "Cấu hình biến môi trường & TMDB API key",
+      "description": "Đăng ký TMDB API key (v3 auth) trên developer.themoviedb.org. Tạo backend/.env.example và frontend/.env.local.example với các key: DATABASE_URL, JWT_SECRET, TMDB_API_KEY, RECOMMENDATION_SERVICE_URL, NEXT_PUBLIC_API_URL. Tạo backend/.env và frontend/.env.local thật (gitignored) từ key đã đăng ký.",
+      "dependencies": ["feat-001"],
+      "status": "not-started",
+      "evidence": ""
+    },
+    {
+      "id": "feat-004",
+      "name": "Thiết kế schema Prisma theo DATABASE_SCHEMA.md",
+      "description": "Tạo backend/prisma/schema.prisma với đúng 6 model: User, Movie, Genre (+ bảng nối movie_genres), WatchHistory, Watchlist, Rating, khớp cột/kiểu dữ liệu/ràng buộc (UNIQUE(user_id, movie_id) trên Watchlist, index watch_history(user_id, watched_at DESC) v.v. theo mục 4 của DATABASE_SCHEMA.md). Chạy migration đầu tiên lên Postgres trong container.",
+      "dependencies": ["feat-002", "feat-003"],
+      "status": "not-started",
+      "evidence": ""
+    },
+    {
+      "id": "feat-005",
+      "name": "Xác thực & bàn giao Giai đoạn 0",
+      "description": "Chạy ./init.sh sạch từ checkout mới: docker compose config hợp lệ, prisma validate pass, migration áp dụng thành công, docker compose up khởi động được cả 3 service. Cập nhật README.md với hướng dẫn chạy dev. Cập nhật claude-progress.md, đánh dấu Giai đoạn 0 hoàn tất, sẵn sàng chuyển Giai đoạn 1 (Authentication).",
+      "dependencies": ["feat-004"],
+      "status": "not-started",
+      "evidence": ""
+    }
+  ]
+}
