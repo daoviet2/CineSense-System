@@ -3,7 +3,7 @@
 ## Current State
 
 **Last Updated:** 2026-09-26
-**Session ID:** session-003
+**Session ID:** session-004
 **Active Feature:** feat-003 — Cấu hình biến môi trường & TMDB API key
 
 ## Status
@@ -20,7 +20,7 @@
   - Thêm Dockerfile dev, package manifests/lockfiles và app entrypoint tối thiểu cho Next.js + Express
   - Thêm Compose Postgres/backend/frontend, network nội bộ, healthchecks, volume dữ liệu và service recommendation tùy chọn ở trạng thái comment
   - Khắc phục findings dependency frontend; `npm audit` sạch cho cả hai app
-  - `docker compose config`, Next.js build, backend health và frontend HTTP smoke test đều pass
+  - `docker compose config`, `docker compose up --build -d`, Next.js build, backend health và frontend HTTP smoke test đều pass
 
 ### What's In Progress
 
@@ -35,7 +35,8 @@
 ## Blockers / Risks
 
 - [ ] **TMDB API key**: chưa đăng ký — cần user tự tạo tài khoản trên developer.themoviedb.org (agent không tự đăng ký thay được)
-- [x] Docker CLI có sẵn; Docker Engine/daemon hiện không chạy nên chưa build image hoặc `docker compose up`
+- [x] Docker Engine hoạt động; compose stack đã build và chạy đủ 3 service
+- [ ] Host port `3000` đang được container `ragent_web` sử dụng; lần chạy này dùng `FRONTEND_PORT=3002`, không dừng container ngoài dự án
 - [ ] Trên Windows, gọi `init.sh` qua Git Bash (`C:\Program Files\Git\bin\bash.exe`) để Node.js Windows hiện trong PATH; WSL Bash không nhìn thấy Node.js này
 
 ## Decisions Made
@@ -64,9 +65,11 @@
 - [x] Secret ignore check: real env files ignored; env example files not ignored
 - [x] Git Bash `./init.sh` exited successfully; warnings remain only for pending features
 - [x] `docker compose config` / `docker compose config --quiet`
+- [x] `FRONTEND_PORT=3002 docker compose up --build -d`; Postgres/backend healthy, frontend started
+- [x] HTTP checks: `http://localhost:4001/health` trả `ok`, `http://localhost:3002` trả HTTP 200 và trang CineSense; `pg_isready` chấp nhận kết nối
 - [x] `npm ci` và `npm audit` pass ở frontend/backend; audit báo 0 vulnerabilities
 - [x] `npx next build`, `node --check backend/src/server.js`, HTTP smoke test frontend/backend
-- [ ] `docker compose build` / `docker compose up`: chưa chạy được vì Docker Engine không hoạt động
+- [x] Docker image build và Compose runtime đã được kiểm chứng
 - [ ] Type check clean: _(chưa áp dụng)_
 - [x] Manual verification: đối chiếu scaffold với `docs/CAU_TRUC_DU_AN.md` và bốn tài liệu dự án
 
