@@ -32,8 +32,6 @@ Validate the Compose configuration:
 docker compose config --quiet
 ```
 
-The agent workflow files (`AGENTS.md`, `init.sh`, `feature_list.json`, and `claude-progress.md`) are local workspace files and are not included in a Git checkout. If your workspace provides `init.sh`, you can also run it from the repository root using Git Bash on Windows.
-
 Start the stack from PowerShell. If host port 3000 is already in use, select another port such as 3002:
 
 ```powershell
