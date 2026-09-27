@@ -41,6 +41,7 @@ services:
       JWT_SECRET: ${JWT_SECRET:-local-dev-only-change-me}
       TMDB_API_KEY: ${TMDB_API_KEY:-}
       RECOMMENDATION_SERVICE_URL: ${RECOMMENDATION_SERVICE_URL:-}
+      REDIS_URL: ${REDIS_URL:-redis://redis:6379}
     ports:
       - "${BACKEND_PORT:-4001}:4000"
     volumes:
