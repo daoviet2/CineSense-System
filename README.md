@@ -8,7 +8,7 @@ CineSense is a movie recommendation app scaffold. The approved stack is Next.js,
 - `backend/`: Express API scaffold and Prisma schema/migrations.
 - `docs/`: project plan, architecture, database schema, and user flows.
 - `recommendation-service/`: optional future Python/FastAPI service; currently disabled.
-- `docker-compose.yml`: local PostgreSQL, backend, and frontend services.
+- `docker-compose.yml`: local PostgreSQL, Redis, backend, and frontend services.
 
 ## Prerequisites
 
@@ -26,6 +26,8 @@ Copy-Item frontend/.env.local.example frontend/.env.local
 
 Set a valid TMDB API key in `backend/.env` if you need TMDB access. Keep local `.env` files out of Git; only the example templates are committed. Compose uses development defaults for PostgreSQL and the internal backend connection.
 
+Compose makes Redis available to the backend at `redis://redis:6379` through `REDIS_URL`. The Redis service is internal to the Compose network and is not published on a host port. Redis uses append-only persistence and the `redis_data` volume so queued BullMQ jobs can survive container recreation.
+
 Validate the Compose configuration:
 
 ```powershell
@@ -39,7 +41,7 @@ $env:FRONTEND_PORT = "3002"
 docker compose up --build -d
 ```
 
-Apply the initial Prisma migration and validate the schema in the backend container:
+Apply Prisma migrations, including the `user_profiles` table, and validate the schema in the backend container:
 
 ```powershell
 docker compose exec backend npx prisma migrate deploy
@@ -52,6 +54,7 @@ Open the services:
 - Frontend: `http://localhost:3002` (or the selected `FRONTEND_PORT`).
 - Backend health check: `http://localhost:4001/health`.
 - PostgreSQL: `localhost:5432`.
+- Redis: available to Compose services as `redis:6379`.
 
 Check container status and stop the stack:
 
@@ -60,7 +63,7 @@ docker compose ps
 docker compose down
 ```
 
-Compose keeps PostgreSQL data in the `postgres_data` volume when the stack is stopped.
+Compose keeps PostgreSQL data in `postgres_data` and Redis data in `redis_data` when the stack is stopped.
 
 ## Project documents
 
