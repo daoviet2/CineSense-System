@@ -17,6 +17,7 @@ model User {
   watchHistory WatchHistory[]
   watchlists   Watchlist[]
   ratings      Rating[]
+  userProfile  UserProfile?
 
   @@map("users")
 }
@@ -92,4 +93,15 @@ model Rating {
 
   @@index([userId, movieId], map: "ratings_user_id_movie_id_idx")
   @@map("ratings")
+}
+
+model UserProfile {
+  id             String   @id @default(uuid()) @db.Uuid
+  userId         String   @unique @map("user_id") @db.Uuid
+  favoriteGenres Json     @map("favorite_genres") @db.JsonB
+  tasteVector    Json     @map("taste_vector") @db.JsonB
+  lastComputedAt DateTime @map("last_computed_at") @db.Timestamp(6)
+  user           User     @relation(fields: [userId], references: [id])
+
+  @@map("user_profiles")
 }
