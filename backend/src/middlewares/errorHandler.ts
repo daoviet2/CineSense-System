@@ -51,6 +51,26 @@ export function errorHandler(
     return;
   }
 
+  const isSyntaxOrParseError =
+    err instanceof SyntaxError ||
+    (typeof err === 'object' && err !== null && (err as { name?: string }).name === 'SyntaxError');
+  const isBodyParser400 =
+    typeof err === 'object' &&
+    err !== null &&
+    (('status' in err && (err as { status?: unknown }).status === 400) ||
+      ('statusCode' in err && (err as { statusCode?: unknown }).statusCode === 400) ||
+      ('type' in err && (err as { type?: unknown }).type === 'entity.parse.failed'));
+
+  if (isSyntaxOrParseError && isBodyParser400) {
+    res.status(400).json({
+      error: {
+        code: 'INVALID_JSON',
+        message: 'Invalid JSON payload',
+      },
+    });
+    return;
+  }
+
   if (env.NODE_ENV !== 'test') {
     console.error('Unhandled error:', err);
   }
