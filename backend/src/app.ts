@@ -9,6 +9,7 @@ import {
   registerRateLimiter,
 } from './middlewares/rateLimiter.js';
 import { createAuthRouter } from './modules/auth/auth.routes.js';
+import { createUserRouter } from './modules/user/user.routes.js';
 
 export function createApp(): Application {
   const app = express();
@@ -40,6 +41,10 @@ export function createApp(): Application {
   // Rate limiters are mounted only on the two auth mutation endpoints.
   // /auth/logout has no limiter (stateless, cheap, idempotent).
   app.use('/auth', createAuthRouter({ loginRateLimiter, registerRateLimiter }));
+
+  // ── User profile routes (feat-016, Decision D5) ───────────────────────────
+  // All /users routes require authentication (requireAuth applied per-route).
+  app.use('/users', createUserRouter());
 
   // ── 404 handler ───────────────────────────────────────────────────────────
   app.use((_req: Request, _res: Response, next: NextFunction) => {

@@ -23,3 +23,14 @@ export interface CreateUserInput {
   passwordHash: string;
   avatarUrl?: string | null;
 }
+
+/**
+ * Input for PATCH /users/me — at least one field must be provided.
+ * Validation enforced at the schema layer (user.schema.ts).
+ * avatarUrl accepts null to clear the existing avatar (D6).
+ */
+export interface UpdateUserInput {
+  name?: string;
+  email?: string;
+  avatarUrl?: string | null;
+}

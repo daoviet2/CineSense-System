@@ -41,6 +41,7 @@ describe('AuthService.register unit tests', () => {
       findByEmail: jest.fn(),
       findById: jest.fn(),
       create: jest.fn(),
+      updateById: jest.fn(),
     };
 
     mockHasher = {
@@ -145,6 +146,7 @@ describe('AuthService.login unit tests', () => {
       findByEmail: jest.fn(),
       findById: jest.fn(),
       create: jest.fn(),
+      updateById: jest.fn(),
     };
 
     mockHasher = {

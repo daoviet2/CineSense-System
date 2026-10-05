@@ -1,11 +1,12 @@
 import { PrismaClient } from '@prisma/client';
 import { prisma as defaultPrisma } from '../../config/db.js';
-import { CreateUserInput, UserPublicDto, UserRecord } from './user.types.js';
+import { CreateUserInput, UpdateUserInput, UserPublicDto, UserRecord } from './user.types.js';
 
 export interface IUserRepository {
   findByEmail(email: string): Promise<UserRecord | null>;
   findById(id: string): Promise<UserPublicDto | null>;
   create(data: CreateUserInput): Promise<UserPublicDto>;
+  updateById(id: string, data: UpdateUserInput): Promise<UserPublicDto | null>;
 }
 
 export class PrismaUserRepository implements IUserRepository {
@@ -64,6 +65,34 @@ export class PrismaUserRepository implements IUserRepository {
     });
 
     return user;
+  }
+  async updateById(id: string, data: UpdateUserInput): Promise<UserPublicDto | null> {
+    // Strip undefined fields so Prisma only updates provided columns
+    const updateData: Record<string, unknown> = {};
+    if (data.name !== undefined) updateData.name = data.name;
+    if (data.email !== undefined) updateData.email = data.email;
+    // avatarUrl: undefined = not provided; null = clear; string = set
+    if (data.avatarUrl !== undefined) updateData.avatarUrl = data.avatarUrl;
+
+    try {
+      const user = await this.prisma.user.update({
+        where: { id },
+        data: updateData,
+        select: {
+          id: true,
+          name: true,
+          email: true,
+          avatarUrl: true,
+          createdAt: true,
+        },
+      });
+      return user;
+    } catch (err: unknown) {
+      const e = err as { code?: string };
+      // P2025 = record not found
+      if (e?.code === 'P2025') return null;
+      throw err;
+    }
   }
 }
 
