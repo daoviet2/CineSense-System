@@ -21,7 +21,9 @@ const validUser: UserPublicDto = {
 
 function buildApp(mockAuthService: jest.Mocked<AuthService>): express.Application {
   const controller = new AuthController(mockAuthService);
-  const router = createAuthRouter(controller);
+  // No rate limiters passed — unit tests run without limiter middleware
+  // for speed and determinism. Rate limiter is tested separately.
+  const router = createAuthRouter({ controller });
 
   const app = express();
   app.use(express.json());

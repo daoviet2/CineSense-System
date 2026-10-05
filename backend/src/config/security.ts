@@ -14,3 +14,21 @@ export const JWT_ALGORITHM = 'HS256' as const;
 export const DUMMY_HASH =
   '$2b$12$invalidusernameX.invalidpasswordhashXXXXXXXXXXXXXXXXXX';
 
+// ---------------------------------------------------------------------------
+// Rate limiting (Decision D10)
+// Applied only to /auth/login and /auth/register.
+// In-memory store — correct only for single-instance deployment.
+// TODO (Phase 4): switch to Redis store for multi-instance correctness.
+// ---------------------------------------------------------------------------
+
+/** Window length in milliseconds for auth rate limiting (15 minutes). */
+export const RATE_LIMIT_WINDOW_MS = 15 * 60 * 1000;
+
+/** Maximum requests per window for /auth/register. */
+export const RATE_LIMIT_REGISTER_MAX = 10;
+
+/** Maximum requests per window for /auth/login. */
+export const RATE_LIMIT_LOGIN_MAX = 20;
+
+/** Cookie name for the access token. */
+export const ACCESS_TOKEN_COOKIE_NAME = 'access_token';
