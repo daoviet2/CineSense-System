@@ -5,8 +5,8 @@ import helmet from 'helmet';
 import { env } from './config/env.js';
 import { AppError, errorHandler } from './middlewares/errorHandler.js';
 import {
-  loginRateLimiter,
-  registerRateLimiter,
+  createLoginRateLimiter,
+  createRegisterRateLimiter,
 } from './middlewares/rateLimiter.js';
 import { createAuthRouter } from './modules/auth/auth.routes.js';
 import { createUserRouter } from './modules/user/user.routes.js';
@@ -40,7 +40,13 @@ export function createApp(): Application {
   // ── Auth routes with per-route rate limiters (Decision D10) ──────────────
   // Rate limiters are mounted only on the two auth mutation endpoints.
   // /auth/logout has no limiter (stateless, cheap, idempotent).
-  app.use('/auth', createAuthRouter({ loginRateLimiter, registerRateLimiter }));
+  app.use(
+    '/auth',
+    createAuthRouter({
+      loginRateLimiter: createLoginRateLimiter(),
+      registerRateLimiter: createRegisterRateLimiter(),
+    })
+  );
 
   // ── User profile routes (feat-016, Decision D5) ───────────────────────────
   // All /users routes require authentication (requireAuth applied per-route).

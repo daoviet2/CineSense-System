@@ -29,15 +29,18 @@ function makeHandler(max: number): RateLimitRequestHandler {
 }
 
 /**
- * Rate limiter for POST /auth/register.
+ * Factory: rate limiter for POST /auth/register.
+ * A new instance per createApp() so integration tests do not share counters.
  * Limit: RATE_LIMIT_REGISTER_MAX requests per RATE_LIMIT_WINDOW_MS.
  */
-export const registerRateLimiter: RateLimitRequestHandler =
-  makeHandler(RATE_LIMIT_REGISTER_MAX);
+export function createRegisterRateLimiter(): RateLimitRequestHandler {
+  return makeHandler(RATE_LIMIT_REGISTER_MAX);
+}
 
 /**
- * Rate limiter for POST /auth/login.
+ * Factory: rate limiter for POST /auth/login.
  * Limit: RATE_LIMIT_LOGIN_MAX requests per RATE_LIMIT_WINDOW_MS.
  */
-export const loginRateLimiter: RateLimitRequestHandler =
-  makeHandler(RATE_LIMIT_LOGIN_MAX);
+export function createLoginRateLimiter(): RateLimitRequestHandler {
+  return makeHandler(RATE_LIMIT_LOGIN_MAX);
+}

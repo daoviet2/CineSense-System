@@ -38,6 +38,7 @@ services:
       NODE_ENV: development
       PORT: 4000
       DATABASE_URL: ${DATABASE_URL:-postgresql://cinesense:cinesense_dev@postgres:5432/cinesense?schema=public}
+      DATABASE_URL_TEST: ${DATABASE_URL_TEST:-postgresql://cinesense:cinesense_dev@postgres:5432/cinesense_test?schema=public}
       JWT_SECRET: ${JWT_SECRET:-cinesense-local-dev-jwt-secret-min-32-chars-long}
       TMDB_API_KEY: ${TMDB_API_KEY:-}
       RECOMMENDATION_SERVICE_URL: ${RECOMMENDATION_SERVICE_URL:-}
