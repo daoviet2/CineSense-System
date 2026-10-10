@@ -1,6 +1,7 @@
 import {
   loginValidationSchema,
   signupValidationSchema,
+  profileValidationSchema,
   getUtf8ByteLength,
 } from '../src/schemas/auth.schema';
 
@@ -110,6 +111,88 @@ describe('auth.schema', () => {
         );
         expect(confirmIssue).toBeDefined();
         expect(confirmIssue?.message).toContain('không trùng khớp');
+      }
+    });
+  });
+
+  describe('profileValidationSchema', () => {
+    it('accepts valid profile update input with avatarUrl', () => {
+      const result = profileValidationSchema.safeParse({
+        name: 'Nguyen Van B',
+        email: 'UserB@Example.com',
+        avatarUrl: 'https://example.com/avatar.png',
+      });
+      expect(result.success).toBe(true);
+      if (result.success) {
+        expect(result.data.email).toBe('userb@example.com');
+        expect(result.data.name).toBe('Nguyen Van B');
+        expect(result.data.avatarUrl).toBe('https://example.com/avatar.png');
+      }
+    });
+
+    it('accepts valid profile with empty/missing avatarUrl (clearing avatar)', () => {
+      const resultEmpty = profileValidationSchema.safeParse({
+        name: 'Nguyen Van C',
+        email: 'c@example.com',
+        avatarUrl: '',
+      });
+      expect(resultEmpty.success).toBe(true);
+
+      const resultUndefined = profileValidationSchema.safeParse({
+        name: 'Nguyen Van C',
+        email: 'c@example.com',
+      });
+      expect(resultUndefined.success).toBe(true);
+    });
+
+    it('rejects empty name or name exceeding 100 characters', () => {
+      const emptyResult = profileValidationSchema.safeParse({
+        name: '   ',
+        email: 'valid@example.com',
+      });
+      expect(emptyResult.success).toBe(false);
+
+      const longResult = profileValidationSchema.safeParse({
+        name: 'a'.repeat(101),
+        email: 'valid@example.com',
+      });
+      expect(longResult.success).toBe(false);
+    });
+
+    it('rejects invalid email address', () => {
+      const result = profileValidationSchema.safeParse({
+        name: 'Valid Name',
+        email: 'not-an-email',
+      });
+      expect(result.success).toBe(false);
+    });
+
+    it('rejects non-http/https or invalid avatarUrl', () => {
+      const ftpResult = profileValidationSchema.safeParse({
+        name: 'Valid Name',
+        email: 'valid@example.com',
+        avatarUrl: 'ftp://example.com/avatar.png',
+      });
+      expect(ftpResult.success).toBe(false);
+
+      const malformedResult = profileValidationSchema.safeParse({
+        name: 'Valid Name',
+        email: 'valid@example.com',
+        avatarUrl: 'not-a-valid-url',
+      });
+      expect(malformedResult.success).toBe(false);
+    });
+
+    it('rejects avatarUrl exceeding 2048 characters (D6 constraint)', () => {
+      const longUrl = 'https://example.com/' + 'a'.repeat(2040);
+      const result = profileValidationSchema.safeParse({
+        name: 'Valid Name',
+        email: 'valid@example.com',
+        avatarUrl: longUrl,
+      });
+      expect(result.success).toBe(false);
+      if (!result.success) {
+        expect(result.error.issues[0].message).toContain('2048 ký tự');
       }
     });
   });

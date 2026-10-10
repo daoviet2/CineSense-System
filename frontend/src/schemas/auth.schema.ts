@@ -63,3 +63,41 @@ export const signupValidationSchema = z
   });
 
 export type SignupFormData = z.infer<typeof signupValidationSchema>;
+
+export const MAX_AVATAR_URL_LENGTH = 2048;
+
+export const profileValidationSchema = z.object({
+  name: z
+    .string()
+    .trim()
+    .min(1, 'Họ và tên không được để trống')
+    .max(100, 'Họ và tên không được vượt quá 100 ký tự'),
+  email: z
+    .string()
+    .trim()
+    .min(1, 'Vui lòng nhập email')
+    .toLowerCase()
+    .email('Định dạng email không hợp lệ'),
+  avatarUrl: z
+    .string()
+    .trim()
+    .max(MAX_AVATAR_URL_LENGTH, `Đường dẫn avatar không được vượt quá ${MAX_AVATAR_URL_LENGTH} ký tự`)
+    .refine(
+      (val) => {
+        if (!val || val === '') return true;
+        try {
+          const parsed = new URL(val);
+          return parsed.protocol === 'http:' || parsed.protocol === 'https:';
+        } catch {
+          return false;
+        }
+      },
+      {
+        message: 'Ảnh đại diện phải là URL hợp lệ bắt đầu bằng http:// hoặc https://',
+      }
+    )
+    .optional()
+    .or(z.literal('')),
+});
+
+export type ProfileFormData = z.infer<typeof profileValidationSchema>;
