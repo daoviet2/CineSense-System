@@ -5,114 +5,131 @@
 ```
 movie-recommendation-app/
 │
-├── frontend/                          # Next.js app
+├── frontend/                          # Next.js 15 App Router
 │   ├── public/                        # Ảnh tĩnh, favicon
 │   ├── src/
-│   │   ├── app/  (hoặc pages/)
-│   │   │   ├── login/page.tsx
-│   │   │   ├── signup/page.tsx
-│   │   │   ├── profile/page.tsx
-│   │   │   ├── movie/[id]/page.tsx    # Trang chi tiết phim
-│   │   │   ├── watchlist/page.tsx
-│   │   │   ├── history/page.tsx
-│   │   │   ├── recommendations/page.tsx
-│   │   │   └── layout.tsx
+│   │   ├── app/
+│   │   │   ├── login/page.tsx         # Trang đăng nhập
+│   │   │   ├── signup/page.tsx        # Trang đăng ký
+│   │   │   ├── profile/page.tsx       # Trang thông tin tài khoản
+│   │   │   ├── movie/[id]/page.tsx    # Trang chi tiết phim (Giai đoạn 2)
+│   │   │   ├── watchlist/page.tsx     # Trang danh sách theo dõi (Giai đoạn 3)
+│   │   │   ├── history/page.tsx       # Trang lịch sử xem (Giai đoạn 3)
+│   │   │   ├── recommendations/page.tsx # Trang gợi ý phim (Giai đoạn 4)
+│   │   │   ├── layout.tsx
+│   │   │   └── page.tsx               # Trang chủ
 │   │   ├── components/
-│   │   │   ├── MovieCard.tsx
-│   │   │   ├── MovieGrid.tsx
-│   │   │   ├── Navbar.tsx
-│   │   │   ├── WatchlistButton.tsx
-│   │   │   └── RecommendationSection.tsx
+│   │   │   ├── Navbar.tsx             # Thanh điều hướng với auth state
+│   │   │   ├── MovieCard.tsx          # Card phim (Giai đoạn 2)
+│   │   │   ├── MovieGrid.tsx          # Grid phim (Giai đoạn 2)
+│   │   │   ├── WatchlistButton.tsx    # Nút thêm watchlist (Giai đoạn 3)
+│   │   │   ├── RecommendationSection.tsx # Khối gợi ý (Giai đoạn 4)
+│   │   │   └── providers/
+│   │   │       └── QueryProvider.tsx  # TanStack React Query Provider
 │   │   ├── hooks/
-│   │   │   ├── useAuth.ts
+│   │   │   ├── useAuth.ts             # Hook quản lý auth & session
 │   │   │   ├── useWatchlist.ts
 │   │   │   └── useRecommendations.ts
-│   │   ├── services/                  # Gọi API backend
-│   │   │   ├── authService.ts
+│   │   ├── lib/
+│   │   │   └── authErrors.ts          # Mapping mã lỗi D3 sang thông điệp tiếng Việt
+│   │   ├── schemas/
+│   │   │   └── auth.schema.ts         # Zod schemas validation client-side
+│   │   ├── services/                  # Gọi API backend (credentials: include)
+│   │   │   ├── authService.ts         # Service xác thực & profile
 │   │   │   ├── movieService.ts
 │   │   │   ├── historyService.ts
 │   │   │   └── watchlistService.ts
-│   │   ├── store/                     # Zustand/Redux
-│   │   │   └── authStore.ts
-│   │   └── styles/
+│   │   ├── store/                     # Zustand state management
+│   │   │   └── authStore.ts           # Store user & auth status (không lưu token trong JS)
+│   │   ├── styles/
+│   │   │   └── globals.css            # Dark cinema theme & glassmorphism
+│   │   ├── types/
+│   │   │   └── auth.ts                # TypeScript definitions cho Auth/User
+│   │   └── middleware.ts              # Route Guard kiểm tra cookie access_token (D11)
+│   ├── tests/
+│   │   ├── auth.schema.test.ts
+│   │   ├── authErrors.test.ts
+│   │   ├── authService.test.ts
+│   │   └── authStore.test.ts
 │   ├── .env.local
 │   ├── next.config.js
+│   ├── tsconfig.json
 │   └── package.json
 │
-├── backend/                           # Node.js + Express (hoặc NestJS)
+├── backend/                           # Node.js + Express (TypeScript)
+│   ├── prisma/                        # Prisma ORM
+│   │   ├── schema.prisma              # Database schema
+│   │   └── migrations/                # Database migration history
 │   ├── src/
 │   │   ├── config/
-│   │   │   ├── db.ts
-│   │   │   └── env.ts
+│   │   │   ├── db.ts                  # PrismaClient singleton
+│   │   │   ├── env.ts                 # Biến môi trường Zod fail-fast
+│   │   │   └── security.ts            # Hằng số bảo mật (bcrypt rounds, cookie, token)
+│   │   ├── middlewares/
+│   │   │   ├── auth.middleware.ts     # Middleware requireAuth xác thực JWT
+│   │   │   ├── errorHandler.ts        # AppError & xử lý lỗi chuẩn hóa D3
+│   │   │   └── rateLimiter.ts         # In-memory rate limiting cho login & register
 │   │   ├── modules/
 │   │   │   ├── auth/
-│   │   │   │   ├── auth.controller.ts
-│   │   │   │   ├── auth.service.ts
-│   │   │   │   ├── auth.routes.ts
-│   │   │   │   └── auth.middleware.ts   # Xác thực JWT
+│   │   │   │   ├── auth.controller.ts # Controller xử lý HTTP request/response
+│   │   │   │   ├── auth.service.ts    # Nghiệp vụ xác thực & factory DI
+│   │   │   │   ├── auth.routes.ts     # Route mapping (/auth/register, /auth/login, /auth/logout)
+│   │   │   │   └── auth.schema.ts     # Zod schema validation
 │   │   │   ├── user/
-│   │   │   │   ├── user.controller.ts
-│   │   │   │   ├── user.service.ts
-│   │   │   │   └── user.routes.ts
-│   │   │   ├── movie/
+│   │   │   │   ├── user.controller.ts # Controller xử lý profile
+│   │   │   │   ├── user.service.ts    # Nghiệp vụ user & factory DI
+│   │   │   │   ├── user.repository.ts # Repository interface & Prisma implementation (D4/D9)
+│   │   │   │   ├── user.routes.ts     # Route mapping (/users/me)
+│   │   │   │   ├── user.schema.ts     # Zod schema updateUser
+│   │   │   │   └── user.types.ts      # Data transfer objects (UserPublicDto)
+│   │   │   ├── movie/                 # Giai đoạn 2
 │   │   │   │   ├── movie.controller.ts
-│   │   │   │   ├── movie.service.ts     # Gọi TMDB API + cache DB. Sau khi cache phim MỚI -> enqueue job embed-movie
+│   │   │   │   ├── movie.service.ts   # Gọi TMDB API + cache DB -> enqueue embed-movie
 │   │   │   │   └── movie.routes.ts
-│   │   │   ├── history/
+│   │   │   ├── history/               # Giai đoạn 3
 │   │   │   │   ├── history.controller.ts
-│   │   │   │   ├── history.service.ts   # Sau khi ghi history -> enqueue job recalculate-user-profile
+│   │   │   │   ├── history.service.ts # Ghi history -> enqueue recalculate-user-profile
 │   │   │   │   └── history.routes.ts
-│   │   │   ├── watchlist/
+│   │   │   ├── watchlist/             # Giai đoạn 3
 │   │   │   │   ├── watchlist.controller.ts
-│   │   │   │   ├── watchlist.service.ts # Sau khi thêm/xóa -> enqueue job recalculate-user-profile
+│   │   │   │   ├── watchlist.service.ts # Thêm/xóa watchlist -> enqueue recalculate-user-profile
 │   │   │   │   └── watchlist.routes.ts
-│   │   │   ├── rating/
+│   │   │   ├── rating/                # Giai đoạn 3
 │   │   │   │   ├── rating.controller.ts
-│   │   │   │   ├── rating.service.ts    # Sau khi rate -> enqueue job recalculate-user-profile
+│   │   │   │   ├── rating.service.ts  # Đánh giá phim -> enqueue recalculate-user-profile
 │   │   │   │   └── rating.routes.ts
-│   │   │   └── recommendation/
+│   │   │   └── recommendation/        # Giai đoạn 4
 │   │   │       ├── recommendation.controller.ts
-│   │   │       ├── recommendation.service.ts  # Đọc cache Redis trước, fallback tính real-time
+│   │   │       ├── recommendation.service.ts # Đọc Redis cache, fallback hybrid scoring
 │   │   │       ├── scoring/
-│   │   │       │   ├── genreMatch.ts     # Cập nhật qua job recalculate-user-profile
-│   │   │       │   ├── similarity.ts     # Cosine similarity trên embedding (taste_vector vs overview_embedding); cập nhật qua job recalculate-user-profile
-│   │   │       │   ├── ratingScore.ts    # Cập nhật qua cron batch (xem jobs/cron/)
-│   │   │       │   └── recencyBoost.ts   # Luôn tính real-time
+│   │   │       │   ├── genreMatch.ts
+│   │   │       │   ├── similarity.ts
+│   │   │       │   ├── ratingScore.ts
+│   │   │       │   └── recencyBoost.ts
 │   │   │       ├── cache/
-│   │   │       │   └── recommendationCache.ts  # get/set/invalidate key recommend:{user_id}
+│   │   │       │   └── recommendationCache.ts
 │   │   │       └── recommendation.routes.ts
-│   │   ├── jobs/                        # BullMQ: hàng đợi sự kiện + worker
+│   │   ├── jobs/                      # BullMQ: hàng đợi & worker (Giai đoạn 2-4)
 │   │   │   ├── queues/
-│   │   │   │   ├── userProfile.queue.ts       # Định nghĩa queue "recalculate-user-profile"
-│   │   │   │   └── movieEmbedding.queue.ts    # Định nghĩa queue "embed-movie"
+│   │   │   │   ├── userProfile.queue.ts
+│   │   │   │   └── movieEmbedding.queue.ts
 │   │   │   ├── workers/
-│   │   │   │   ├── userProfile.worker.ts      # Xử lý job: tính lại genre/taste_vector cho 1 user + xóa cache
-│   │   │   │   └── movieEmbedding.worker.ts   # Xử lý job: gọi recommendation-service sinh embedding từ overview, ghi vào movies.overview_embedding
+│   │   │   │   ├── userProfile.worker.ts
+│   │   │   │   └── movieEmbedding.worker.ts
 │   │   │   └── cron/
-│   │   │       ├── updateAverageRating.cron.ts  # node-cron: cập nhật AverageRatingScore (mỗi 1–6h)
-│   │   │       └── rebuildSimilarityMatrix.cron.ts # node-cron: tính lại ma trận similarity phim-phim
-│   │   ├── config/
-│   │   │   ├── db.ts
-│   │   │   ├── redis.ts                 # Kết nối Redis dùng chung cho cache & BullMQ
-│   │   │   └── env.ts
-│   │   ├── prisma/                     # Nếu dùng Prisma ORM
-│   │   │   ├── schema.prisma
-│   │   │   └── migrations/
-│   │   ├── middlewares/
-│   │   │   ├── errorHandler.ts
-│   │   │   └── rateLimiter.ts
+│   │   │       ├── updateAverageRating.cron.ts
+│   │   │       └── rebuildSimilarityMatrix.cron.ts
 │   │   ├── utils/
-│   │   │   ├── hash.ts                 # bcrypt helper
-│   │   │   └── jwt.ts
-│   │   ├── app.ts
-│   │   └── server.ts
+│   │   │   ├── hash.ts                # Bcrypt helper (cost 12, max 72 bytes)
+│   │   │   ├── jwt.ts                 # JWT helper (HS256 pinned)
+│   │   │   └── cookie.ts              # Quản lý HttpOnly cookie
+│   │   ├── app.ts                     # Express createApp factory
+│   │   └── server.ts                  # HTTP server & graceful shutdown
 │   ├── tests/
-│   │   ├── auth.test.ts
-│   │   ├── watchlist.test.ts
-│   │   ├── recommendation.test.ts
-│   │   ├── userProfile.worker.test.ts
-│   │   └── movieEmbedding.worker.test.ts
+│   │   ├── unit/                      # 12 test suites / 90 tests
+│   │   └── integration/               # Kiểm thử tích hợp luồng DB biệt lập
 │   ├── .env
+│   ├── tsconfig.json
 │   └── package.json
 │
 ├── recommendation-service/            # (Tùy chọn) Python microservice nâng cao

@@ -16,7 +16,13 @@ export function createApp(): Application {
 
   // ── Security headers (Decision D10) ──────────────────────────────────────
   // helmet sets X-Content-Type-Options, X-Frame-Options, HSTS, etc.
-  app.use(helmet());
+  // CORP must be cross-origin: the browser frontend is a different origin
+  // (different port) and would otherwise fail credentialed fetch/PATCH.
+  app.use(
+    helmet({
+      crossOriginResourcePolicy: { policy: 'cross-origin' },
+    })
+  );
 
   // ── CORS (Decision D10) ───────────────────────────────────────────────────
   // Allow requests only from FRONTEND_ORIGIN; credentials required for

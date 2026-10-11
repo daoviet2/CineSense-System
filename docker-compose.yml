@@ -43,6 +43,7 @@ services:
       TMDB_API_KEY: ${TMDB_API_KEY:-}
       RECOMMENDATION_SERVICE_URL: ${RECOMMENDATION_SERVICE_URL:-}
       REDIS_URL: ${REDIS_URL:-redis://redis:6379}
+      FRONTEND_ORIGIN: ${FRONTEND_ORIGIN:-http://localhost:${FRONTEND_PORT:-3000}}
     ports:
       - "${BACKEND_PORT:-4001}:4000"
     volumes:

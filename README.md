@@ -1,47 +1,68 @@
 # CineSense
 
-CineSense is a movie recommendation app scaffold. The approved stack is Next.js, Node.js/Express, PostgreSQL with Prisma, and TMDB for movie metadata. The planned recommender uses genre match, similarity, average rating, and recency. Business features and recommendation logic are outside the current Phase 0 scope.
+CineSense là ứng dụng gợi ý phim hiện đại theo kiến trúc **Hybrid Recommendation** (GenreMatch + Similarity + AverageRating + RecencyBoost) kết hợp **Redis Cache** và **BullMQ Event Invalidation**.
+Hệ thống Monorepo gồm **Frontend (Next.js 15 App Router)**, **Backend (Node.js/Express + TypeScript + Prisma ORM)**, **PostgreSQL**, **Redis** và nguồn dữ liệu phim từ **TMDB API**.
 
-## Repository layout
+---
 
-- `frontend/`: Next.js application.
-- `backend/`: Express API scaffold and Prisma schema/migrations.
-- `docs/`: project plan, architecture, database schema, and user flows.
-- `recommendation-service/`: optional future Python/FastAPI service; currently disabled.
-- `docker-compose.yml`: local PostgreSQL, Redis, backend, and frontend services.
+## Cấu trúc Repository (Repository Layout)
 
-## Prerequisites
+- `frontend/`: Ứng dụng Next.js (TypeScript, Zustand, TanStack React Query, Dark Cinema UI).
+- `backend/`: API Express TypeScript chia theo module domain (`auth`, `user`), Prisma ORM, JWT HttpOnly Cookie, Rate Limiter, Helmet, CORS.
+- `docs/`: Tài liệu kế hoạch, kiến trúc, cơ sở dữ liệu, luồng người dùng và API endpoints:
+  - [Kế hoạch dự án](docs/KE_HOACH_DU_AN.md)
+  - [Cấu trúc dự án](docs/CAU_TRUC_DU_AN.md)
+  - [Thiết kế CSDL](docs/DATABASE_SCHEMA.md)
+  - [Luồng người dùng](docs/LUONG_NGUOI_DUNG.md)
+  - [Đặc tả API Endpoints](docs/API_ENDPOINTS.md)
+- `docker-compose.yml`: Cấu hình chạy toàn bộ các dịch vụ (PostgreSQL, Redis, Backend, Frontend).
 
-- Docker Desktop with Docker Compose enabled.
-- PowerShell for the commands below on Windows, or a shell with Docker Compose.
+---
 
-## Local development
+## Yêu cầu môi trường (Prerequisites)
 
-From the repository root, create local environment files from the checked-in templates:
+- **Docker Desktop** (hỗ trợ Docker Compose).
+- **Node.js >= 20** (nếu chạy kiểm thử hoặc phát triển trực tiếp trên host).
+- **PowerShell** (trên Windows) hoặc Bash shell.
+
+---
+
+## Khởi động & Phát triển Local (Local Development)
+
+### 1. Thiết lập biến môi trường
+
+Từ thư mục gốc của repository, sao chép file cấu hình mẫu:
 
 ```powershell
 Copy-Item backend/.env.example backend/.env
 Copy-Item frontend/.env.local.example frontend/.env.local
 ```
 
-Set a valid TMDB API key in `backend/.env` if you need TMDB access. Keep local `.env` files out of Git; only the example templates are committed. Compose uses development defaults for PostgreSQL and the internal backend connection.
+**Các biến môi trường chính trong `backend/.env`**:
+- `NODE_ENV`: `development` | `production` | `test`
+- `PORT`: Cổng dịch vụ backend (`4000` trong container, publish ra host `4001`)
+- `DATABASE_URL`: Kết nối PostgreSQL (`postgresql://postgres:postgres@postgres:5432/cinesense_dev?schema=public`)
+- `REDIS_URL`: Kết nối Redis (`redis://redis:6379`)
+- `JWT_SECRET`: Khóa bí mật ký JWT (yêu cầu tối thiểu 32 ký tự, sinh bằng `openssl rand -base64 48`)
+- `JWT_EXPIRES_IN`: Thời hạn của access token (mặc định `7d`)
+- `FRONTEND_ORIGIN`: Địa chỉ nguồn frontend được phép truy cập CORS (`http://localhost:3000` hoặc `http://localhost:3002`)
+- `TMDB_API_KEY`: API key từ The Movie Database (cho Giai đoạn 2)
 
-Compose makes Redis available to the backend at `redis://redis:6379` through `REDIS_URL`. The Redis service is internal to the Compose network and is not published on a host port. Redis uses append-only persistence and the `redis_data` volume so queued BullMQ jobs can survive container recreation.
+### 2. Khởi động hệ thống với Docker Compose
 
-Validate the Compose configuration:
+Kiểm tra cú pháp Compose và khởi chạy toàn bộ 4 containers:
 
 ```powershell
-docker compose config --quiet
-```
-
-Start the stack from PowerShell. If host port 3000 is already in use, select another port such as 3002:
-
-```powershell
+# Chọn cổng frontend nếu cổng 3000 đang bận trên máy host
 $env:FRONTEND_PORT = "3002"
+
+# Build và khởi chạy background
 docker compose up --build -d
 ```
 
-Apply Prisma migrations, including the `user_profiles` table, and validate the schema in the backend container:
+### 3. Đồng bộ Database Schema (Prisma Migration)
+
+Áp dụng migrations vào cơ sở dữ liệu PostgreSQL trong container:
 
 ```powershell
 docker compose exec backend npx prisma migrate deploy
@@ -49,29 +70,54 @@ docker compose exec backend npx prisma validate
 docker compose exec backend npx prisma migrate status
 ```
 
-Open the services:
+### 4. Truy cập các dịch vụ
 
-- Frontend: `http://localhost:3002` (or the selected `FRONTEND_PORT`).
-- Backend health check: `http://localhost:4001/health`.
-- PostgreSQL: `localhost:5432`.
-- Redis: available to Compose services as `redis:6379`.
+- **Frontend App**: `http://localhost:3002` (hoặc cổng cấu hình trong `FRONTEND_PORT`)
+  - Trang chủ: `/`
+  - Đăng nhập: `/login`
+  - Đăng ký: `/signup`
+  - Quản lý hồ sơ: `/profile` (được bảo vệ bởi Route Guard Middleware)
+- **Backend API**: `http://localhost:4001`
+  - Smoke Health Check: `GET http://localhost:4001/health`
+  - Chi tiết endpoints: xem [docs/API_ENDPOINTS.md](docs/API_ENDPOINTS.md)
+- **PostgreSQL**: `localhost:5432`
+- **Redis**: `redis:6379` (nội bộ Compose network)
 
-Check container status and stop the stack:
+---
+
+## Kiểm thử hệ thống (Testing)
+
+### Backend Tests
+
+Chạy kiểm thử unit và kiểm thử tích hợp (integration) bên trong container backend:
 
 ```powershell
-docker compose ps
-docker compose down
+# Typecheck TypeScript
+docker compose exec backend npm run typecheck
+
+# Chạy toàn bộ Unit Tests (90 tests)
+docker compose exec backend npm run test:unit
+
+# Chạy Integration Tests luồng Auth/Users trên DB test biệt lập (7 tests)
+docker compose exec backend npm run test:integration
 ```
 
-Compose keeps PostgreSQL data in `postgres_data` and Redis data in `redis_data` when the stack is stopped.
+### Frontend Tests
 
-## Project documents
+Chạy kiểm thử cho client application (trong thư mục `frontend/`):
 
-- [Project plan](docs/KE_HOACH_DU_AN.md)
-- [Architecture](docs/CAU_TRUC_DU_AN.md)
-- [Database schema](docs/DATABASE_SCHEMA.md)
-- [User flows](docs/LUONG_NGUOI_DUNG.md)
+```powershell
+cd frontend
+npm run typecheck
+npm run lint
+npm test
+npm run build
+```
 
-## Current scope
+---
 
-Phase 0 prepares the monorepo, local Docker environment, environment templates, TMDB configuration, and Prisma schema. Authentication, movie features, and recommendation logic have not been implemented.
+## Trạng thái hiện tại (Current Scope)
+
+- **Giai đoạn 0 (Nền tảng & CSDL)**: Đã hoàn tất (Monorepo, Docker Compose, Postgres, Redis, Prisma Models `User`, `UserProfile`, `Movie`, `WatchHistory`, `Watchlist`, `Rating`).
+- **Giai đoạn 1 (Xác thực người dùng & Profile)**: Đã hoàn tất (Đăng ký, Đăng nhập, Đăng xuất, HttpOnly Cookie JWT HS256, Hash Bcrypt cost 12, Rate limiting, Helmet, CORS, Profile page, Next.js Edge Middleware route guard, Zod error mapping, 100% tests passed).
+- **Giai đoạn 2 (Movie & TMDB Sync)**: Chuẩn bị khởi động theo kế hoạch.
