@@ -32,14 +32,23 @@ export const updateUserSchema = z
       .optional(),
 
     avatarUrl: z
-      .string()
-      .url('avatarUrl must be a valid http or https URL')
-      .max(MAX_AVATAR_URL_LENGTH, `avatarUrl must be at most ${MAX_AVATAR_URL_LENGTH} characters`)
-      .refine(
-        (url) => url.startsWith('http://') || url.startsWith('https://'),
-        'avatarUrl must use http or https scheme'
+      .preprocess(
+        // Normalize empty string → null so the DB clears avatar_url (D6)
+        (val) => (val === '' ? null : val),
+        z
+          .string()
+          .trim()
+          .url('avatarUrl must be a valid http or https URL')
+          .max(
+            MAX_AVATAR_URL_LENGTH,
+            `avatarUrl must be at most ${MAX_AVATAR_URL_LENGTH} characters`
+          )
+          .refine(
+            (url) => url.startsWith('http://') || url.startsWith('https://'),
+            'avatarUrl must use http or https scheme'
+          )
+          .nullable()
       )
-      .nullable()
       .optional(),
   })
   .refine(

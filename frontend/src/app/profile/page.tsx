@@ -121,11 +121,28 @@ export default function ProfilePage() {
     setIsSubmitting(true);
 
     try {
-      await updateProfile({
-        name: trimmedName,
-        email: trimmedEmail,
-        avatarUrl: trimmedAvatar || null,
-      });
+      // Build partial update — only send fields that actually changed (PATCH semantics)
+      const payload: {
+        name?: string;
+        email?: string;
+        avatarUrl?: string | null;
+      } = {};
+
+      if (trimmedName !== initialData.name) {
+        payload.name = trimmedName;
+      }
+      if (trimmedEmail !== initialData.email) {
+        payload.email = trimmedEmail;
+      }
+      // avatarUrl: send "" (backend normalizes → null) or the new URL
+      const initialAvatar = initialData.avatarUrl || '';
+      const newAvatar = trimmedAvatar ?? '';
+      if (newAvatar !== initialAvatar) {
+        // Send "" to clear (backend preprocess: "" → null), or new URL
+        payload.avatarUrl = newAvatar || null;
+      }
+
+      await updateProfile(payload);
 
       setSuccessMessage('Cập nhật thông tin hồ sơ thành công!');
       setInitialData({
