@@ -28,8 +28,8 @@ model Movie {
   title         String         @db.VarChar
   overview      String         @db.Text
   averageRating Float          @map("average_rating") @db.DoublePrecision
-  posterUrl     String         @map("poster_url") @db.VarChar
-  releaseDate   DateTime       @map("release_date") @db.Date
+  posterUrl     String?        @map("poster_url") @db.VarChar
+  releaseDate   DateTime?      @map("release_date") @db.Date
   genres        MovieGenre[]
   watchHistory  WatchHistory[]
   watchlists    Watchlist[]
@@ -39,7 +39,7 @@ model Movie {
 }
 
 model Genre {
-  id     Int          @id @default(autoincrement())
+  id     Int          @id
   name   String       @db.VarChar
   movies MovieGenre[]
 
