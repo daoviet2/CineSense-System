@@ -41,6 +41,10 @@ services:
       DATABASE_URL_TEST: ${DATABASE_URL_TEST:-postgresql://cinesense:cinesense_dev@postgres:5432/cinesense_test?schema=public}
       JWT_SECRET: ${JWT_SECRET:-cinesense-local-dev-jwt-secret-min-32-chars-long}
       TMDB_API_KEY: ${TMDB_API_KEY:-}
+      TMDB_BASE_URL: ${TMDB_BASE_URL:-https://api.themoviedb.org/3}
+      TMDB_IMAGE_BASE_URL: ${TMDB_IMAGE_BASE_URL:-https://image.tmdb.org/t/p}
+      TMDB_LANGUAGE: ${TMDB_LANGUAGE:-vi-VN}
+      TMDB_TIMEOUT_MS: ${TMDB_TIMEOUT_MS:-5000}
       RECOMMENDATION_SERVICE_URL: ${RECOMMENDATION_SERVICE_URL:-}
       REDIS_URL: ${REDIS_URL:-redis://redis:6379}
       FRONTEND_ORIGIN: ${FRONTEND_ORIGIN:-http://localhost:${FRONTEND_PORT:-3000}}

@@ -10,7 +10,11 @@ export const envSchema = z.object({
   JWT_SECRET: z.string().min(32, 'JWT_SECRET must be at least 32 characters long'),
   JWT_EXPIRES_IN: z.string().default('7d'),
   REDIS_URL: z.string().optional(),
-  TMDB_API_KEY: z.string().optional(),
+  TMDB_API_KEY: z.string().trim().min(1, 'TMDB_API_KEY is required'),
+  TMDB_BASE_URL: z.string().url().default('https://api.themoviedb.org/3'),
+  TMDB_IMAGE_BASE_URL: z.string().url().default('https://image.tmdb.org/t/p'),
+  TMDB_LANGUAGE: z.string().trim().min(1).default('vi-VN'),
+  TMDB_TIMEOUT_MS: z.coerce.number().int().positive().default(5000),
   RECOMMENDATION_SERVICE_URL: z.string().optional(),
   FRONTEND_ORIGIN: z.string().default('http://localhost:3000'),
 });

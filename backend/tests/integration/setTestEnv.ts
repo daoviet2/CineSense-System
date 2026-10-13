@@ -4,3 +4,4 @@ import { applyTestDatabaseUrl } from './testEnv';
 // Load backend/.env without clobbering Compose-injected variables.
 dotenv.config({ quiet: true });
 applyTestDatabaseUrl();
+process.env.TMDB_API_KEY = 'test-tmdb-api-key';

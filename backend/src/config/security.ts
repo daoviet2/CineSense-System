@@ -16,7 +16,7 @@ export const DUMMY_HASH =
 
 // ---------------------------------------------------------------------------
 // Rate limiting (Decision D10)
-// Applied only to /auth/login and /auth/register.
+// Applied to auth endpoints and, from Phase 2, the public movies proxy.
 // In-memory store — correct only for single-instance deployment.
 // TODO (Phase 4): switch to Redis store for multi-instance correctness.
 // ---------------------------------------------------------------------------
@@ -29,6 +29,9 @@ export const RATE_LIMIT_REGISTER_MAX = 10;
 
 /** Maximum requests per window for /auth/login. */
 export const RATE_LIMIT_LOGIN_MAX = 20;
+
+/** Maximum requests per window for the public TMDB-backed movies endpoints. */
+export const RATE_LIMIT_MOVIES_MAX = 300;
 
 /** Cookie name for the access token. */
 export const ACCESS_TOKEN_COOKIE_NAME = 'access_token';
