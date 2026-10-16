@@ -116,8 +116,4 @@ npm run build
 
 ---
 
-## Trạng thái hiện tại (Current Scope)
 
-- **Giai đoạn 0 (Nền tảng & CSDL)**: Đã hoàn tất (Monorepo, Docker Compose, Postgres, Redis, Prisma Models `User`, `UserProfile`, `Movie`, `WatchHistory`, `Watchlist`, `Rating`).
-- **Giai đoạn 1 (Xác thực người dùng & Profile)**: Đã hoàn tất (Đăng ký, Đăng nhập, Đăng xuất, HttpOnly Cookie JWT HS256, Hash Bcrypt cost 12, Rate limiting, Helmet, CORS, Profile page, Next.js Edge Middleware route guard, Zod error mapping, 100% tests passed).
-- **Giai đoạn 2 (Movie & TMDB Sync)**: Chuẩn bị khởi động theo kế hoạch.
