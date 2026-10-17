@@ -33,6 +33,10 @@ export interface MovieCacheInput {
   genres: GenreDto[];
 }
 
+export interface MovieWithGenres extends MovieCacheInput {
+  id: string;
+}
+
 export interface PagedResult<T> {
   items: T[];
   page: number;
