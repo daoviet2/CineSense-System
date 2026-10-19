@@ -1,17 +1,32 @@
 import cookieParser from 'cookie-parser';
 import cors from 'cors';
-import express, { Application, Request, Response, NextFunction } from 'express';
+import express, { Application, Request, Response, NextFunction, RequestHandler } from 'express';
 import helmet from 'helmet';
 import { env } from './config/env.js';
 import { AppError, errorHandler } from './middlewares/errorHandler.js';
 import {
   createLoginRateLimiter,
+  createMoviesRateLimiter,
   createRegisterRateLimiter,
 } from './middlewares/rateLimiter.js';
+import { createTmdbClient, ITmdbClient } from './modules/movie/tmdb.client.js';
+import { createMovieRepository } from './modules/movie/movie.repository.js';
+import { createGenreRepository } from './modules/movie/genre.repository.js';
+import { createMovieService, IMovieService } from './modules/movie/movie.service.js';
+import { MovieEventPublisher } from './modules/movie/movie.types.js';
+import { createGenreRouter, createMovieRouter } from './modules/movie/movie.routes.js';
+import { createMovieController } from './modules/movie/movie.controller.js';
 import { createAuthRouter } from './modules/auth/auth.routes.js';
 import { createUserRouter } from './modules/user/user.routes.js';
 
-export function createApp(): Application {
+export interface AppDependencies {
+  movieService?: IMovieService;
+  tmdbClient?: ITmdbClient;
+  eventPublisher?: MovieEventPublisher;
+  moviesRateLimiter?: RequestHandler;
+}
+
+export function createApp(dependencies: AppDependencies = {}): Application {
   const app = express();
 
   // ── Security headers (Decision D10) ──────────────────────────────────────
@@ -57,6 +72,27 @@ export function createApp(): Application {
   // ── User profile routes (feat-016, Decision D5) ───────────────────────────
   // All /users routes require authentication (requireAuth applied per-route).
   app.use('/users', createUserRouter());
+
+  // ── Public movie endpoints (feat-029, D14/D16) ────────────────────────────
+  const movieService = dependencies.movieService ?? createMovieService({
+    tmdbClient: dependencies.tmdbClient ?? createTmdbClient({
+      config: {
+        apiKey: env.TMDB_API_KEY,
+        baseUrl: env.TMDB_BASE_URL,
+        language: env.TMDB_LANGUAGE,
+        timeoutMs: env.TMDB_TIMEOUT_MS,
+      },
+    }),
+    movieRepo: createMovieRepository(),
+    genreRepo: createGenreRepository(),
+    eventPublisher: dependencies.eventPublisher,
+    imageBaseUrl: env.TMDB_IMAGE_BASE_URL,
+    language: env.TMDB_LANGUAGE,
+  });
+  const movieController = createMovieController(movieService);
+  const moviesRateLimiter = dependencies.moviesRateLimiter ?? createMoviesRateLimiter();
+  app.use('/movies', moviesRateLimiter, createMovieRouter(movieController));
+  app.use('/genres', moviesRateLimiter, createGenreRouter(movieController));
 
   // ── 404 handler ───────────────────────────────────────────────────────────
   app.use((_req: Request, _res: Response, next: NextFunction) => {

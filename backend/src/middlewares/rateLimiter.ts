@@ -1,6 +1,7 @@
 import rateLimit, { RateLimitRequestHandler } from 'express-rate-limit';
 import {
   RATE_LIMIT_LOGIN_MAX,
+  RATE_LIMIT_MOVIES_MAX,
   RATE_LIMIT_REGISTER_MAX,
   RATE_LIMIT_WINDOW_MS,
 } from '../config/security.js';
@@ -9,7 +10,7 @@ import {
  * Shared rate-limit message factory that returns the standard D3 error envelope.
  * Using a function avoids a stale object reference across requests.
  */
-function makeHandler(max: number): RateLimitRequestHandler {
+function makeHandler(max: number, errorCode = 'RATE_LIMIT_EXCEEDED'): RateLimitRequestHandler {
   return rateLimit({
     windowMs: RATE_LIMIT_WINDOW_MS,
     max,
@@ -20,7 +21,7 @@ function makeHandler(max: number): RateLimitRequestHandler {
     handler: (_req, res) => {
       res.status(429).json({
         error: {
-          code: 'RATE_LIMIT_EXCEEDED',
+          code: errorCode,
           message: 'Too many requests, please try again later.',
         },
       });
@@ -43,4 +44,9 @@ export function createRegisterRateLimiter(): RateLimitRequestHandler {
  */
 export function createLoginRateLimiter(): RateLimitRequestHandler {
   return makeHandler(RATE_LIMIT_LOGIN_MAX);
+}
+
+/** Factory: in-memory limiter for public TMDB-backed movie endpoints (D16). */
+export function createMoviesRateLimiter(max = RATE_LIMIT_MOVIES_MAX): RateLimitRequestHandler {
+  return makeHandler(max, 'TOO_MANY_REQUESTS');
 }
