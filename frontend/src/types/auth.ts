@@ -8,22 +8,6 @@ export interface User {
 
 export type AuthStatus = 'loading' | 'authenticated' | 'unauthenticated';
 
-export interface ApiErrorDetail {
-  path?: (string | number)[];
-  message: string;
-  [key: string]: unknown;
-}
-
-export interface ApiErrorBody {
-  code: string;
-  message: string;
-  details?: ApiErrorDetail[] | unknown;
-}
-
-export interface ApiErrorResponse {
-  error: ApiErrorBody;
-}
-
 export interface LoginInput {
   email: string;
   password: string;
