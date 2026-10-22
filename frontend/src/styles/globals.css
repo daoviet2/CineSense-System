@@ -696,3 +696,473 @@ a {
   display: flex;
   flex-direction: column;
 }
+
+/* ==========================================================================
+   Movie Components Styles (feat-032)
+   Dark cinema theme & glassmorphism for MovieCard, MovieGrid, SearchBar,
+   GenreFilter, and Pagination.
+   ========================================================================== */
+
+/* Shimmer animation & Skeleton utility */
+@keyframes shimmer {
+  0% {
+    background-position: -200% 0;
+  }
+  100% {
+    background-position: 200% 0;
+  }
+}
+
+.skeleton-box {
+  background: linear-gradient(
+    90deg,
+    rgba(255, 255, 255, 0.04) 25%,
+    rgba(255, 255, 255, 0.09) 50%,
+    rgba(255, 255, 255, 0.04) 75%
+  );
+  background-size: 200% 100%;
+  animation: shimmer 1.8s infinite ease-in-out;
+  border-radius: 6px;
+}
+
+/* --- SearchBar --- */
+.search-bar-container {
+  width: 100%;
+  max-width: 680px;
+  margin: 0 auto 1.5rem;
+}
+
+.search-input-wrapper {
+  display: flex;
+  align-items: center;
+  background: var(--bg-card);
+  border: 1px solid var(--border-subtle);
+  border-radius: 12px;
+  padding: 0.35rem 0.5rem 0.35rem 1rem;
+  gap: 0.75rem;
+  transition: border-color 0.2s ease, box-shadow 0.2s ease;
+}
+
+.search-input-wrapper:focus-within {
+  border-color: var(--border-focus);
+  box-shadow: 0 0 0 3px var(--accent-gold-subtle);
+}
+
+.search-input-icon {
+  color: var(--text-muted);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  flex-shrink: 0;
+}
+
+.search-input {
+  flex: 1;
+  background: transparent;
+  border: none;
+  outline: none;
+  color: var(--text-primary);
+  font-size: 0.95rem;
+  font-family: inherit;
+  min-width: 0;
+}
+
+.search-input::placeholder {
+  color: var(--text-muted);
+}
+
+.search-clear-btn {
+  background: transparent;
+  border: none;
+  color: var(--text-muted);
+  cursor: pointer;
+  padding: 0.35rem;
+  border-radius: 50%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  transition: color 0.2s ease, background-color 0.2s ease;
+  flex-shrink: 0;
+}
+
+.search-clear-btn:hover {
+  color: var(--text-primary);
+  background: rgba(255, 255, 255, 0.08);
+}
+
+.search-submit-btn {
+  padding: 0.5rem 1.25rem;
+  font-size: 0.875rem;
+  white-space: nowrap;
+  flex-shrink: 0;
+}
+
+/* --- GenreFilter --- */
+.genre-filter-container {
+  width: 100%;
+  margin-bottom: 2rem;
+}
+
+.genre-chips-scroll {
+  display: flex;
+  align-items: center;
+  gap: 0.6rem;
+  overflow-x: auto;
+  padding: 0.25rem 0.25rem 0.6rem;
+  scrollbar-width: thin;
+  scrollbar-color: var(--border-subtle) transparent;
+}
+
+.genre-chips-scroll::-webkit-scrollbar {
+  height: 4px;
+}
+
+.genre-chips-scroll::-webkit-scrollbar-thumb {
+  background: var(--border-subtle);
+  border-radius: 4px;
+}
+
+.genre-chip {
+  display: inline-flex;
+  align-items: center;
+  padding: 0.45rem 1rem;
+  border-radius: 20px;
+  font-size: 0.85rem;
+  font-weight: 500;
+  background: rgba(255, 255, 255, 0.05);
+  color: var(--text-secondary);
+  border: 1px solid var(--border-subtle);
+  cursor: pointer;
+  transition: all 0.2s ease;
+  white-space: nowrap;
+  font-family: inherit;
+  outline: none;
+}
+
+.genre-chip:hover:not(:disabled) {
+  background: rgba(255, 255, 255, 0.08);
+  color: var(--text-primary);
+  border-color: rgba(255, 255, 255, 0.18);
+}
+
+.genre-chip:focus-visible {
+  border-color: var(--border-focus);
+  box-shadow: 0 0 0 2px var(--accent-gold-subtle);
+}
+
+.genre-chip-active {
+  background: var(--accent-gold-subtle) !important;
+  color: var(--accent-gold) !important;
+  border-color: var(--accent-gold) !important;
+  font-weight: 600;
+  box-shadow: 0 0 12px var(--accent-gold-glow);
+}
+
+.genre-chip-skeleton {
+  height: 32px;
+  width: 82px;
+  border-radius: 20px;
+  flex-shrink: 0;
+}
+
+/* --- MovieGrid --- */
+.movie-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(180px, 1fr));
+  gap: 1.5rem;
+  width: 100%;
+}
+
+@media (max-width: 640px) {
+  .movie-grid {
+    grid-template-columns: repeat(auto-fill, minmax(140px, 1fr));
+    gap: 1rem;
+  }
+}
+
+.movie-grid-status-container {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  padding: 3.5rem 1rem;
+  width: 100%;
+}
+
+.movie-empty-card,
+.movie-error-card {
+  text-align: center;
+  padding: 3rem 2rem;
+  border-radius: 16px;
+  max-width: 480px;
+  width: 100%;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 0.85rem;
+}
+
+.movie-error-icon {
+  color: var(--accent-red);
+  margin-bottom: 0.25rem;
+}
+
+.movie-empty-icon {
+  color: var(--text-muted);
+  margin-bottom: 0.25rem;
+}
+
+.movie-empty-title,
+.movie-error-title {
+  font-size: 1.25rem;
+  font-weight: 700;
+  color: var(--text-primary);
+}
+
+.movie-empty-subtitle,
+.movie-error-message {
+  font-size: 0.9rem;
+  color: var(--text-secondary);
+  line-height: 1.5;
+}
+
+.movie-retry-btn {
+  margin-top: 0.5rem;
+}
+
+/* --- MovieCard --- */
+.movie-card {
+  border-radius: 12px;
+  overflow: hidden;
+  display: flex;
+  flex-direction: column;
+  transition: transform 0.25s ease, box-shadow 0.25s ease, border-color 0.25s ease;
+  position: relative;
+}
+
+.movie-card:hover {
+  transform: translateY(-4px);
+  box-shadow: 0 12px 24px rgba(0, 0, 0, 0.5), 0 0 15px rgba(245, 158, 11, 0.15);
+  border-color: rgba(245, 158, 11, 0.35);
+}
+
+.movie-card-link {
+  display: flex;
+  flex-direction: column;
+  height: 100%;
+  color: inherit;
+  text-decoration: none;
+  outline: none;
+}
+
+.movie-card-link:focus-visible {
+  outline: 2px solid var(--accent-gold);
+  border-radius: 12px;
+}
+
+.movie-poster-wrapper {
+  position: relative;
+  width: 100%;
+  aspect-ratio: 2 / 3;
+  overflow: hidden;
+  background: #111622;
+}
+
+.movie-poster-img {
+  object-fit: cover;
+  transition: transform 0.35s ease;
+}
+
+.movie-card:hover .movie-poster-img {
+  transform: scale(1.05);
+}
+
+.movie-poster-fallback {
+  position: absolute;
+  inset: 0;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  padding: 1rem;
+  background: linear-gradient(145deg, #182032 0%, #0d121c 100%);
+  color: var(--text-muted);
+  text-align: center;
+  gap: 0.6rem;
+}
+
+.movie-fallback-icon {
+  width: 44px;
+  height: 44px;
+  stroke: var(--text-muted);
+  opacity: 0.65;
+}
+
+.movie-fallback-title {
+  font-size: 0.8rem;
+  color: var(--text-secondary);
+  font-weight: 500;
+  line-height: 1.3;
+  display: -webkit-box;
+  -webkit-line-clamp: 3;
+  -webkit-box-orient: vertical;
+  overflow: hidden;
+}
+
+.movie-rating-badge {
+  position: absolute;
+  top: 0.6rem;
+  right: 0.6rem;
+  display: inline-flex;
+  align-items: center;
+  gap: 0.25rem;
+  padding: 0.25rem 0.55rem;
+  border-radius: 6px;
+  font-size: 0.75rem;
+  font-weight: 700;
+  backdrop-filter: blur(8px);
+  -webkit-backdrop-filter: blur(8px);
+  z-index: 2;
+  box-shadow: 0 2px 6px rgba(0, 0, 0, 0.4);
+}
+
+.rating-has-score {
+  background: rgba(10, 13, 20, 0.88);
+  border: 1px solid rgba(245, 158, 11, 0.4);
+  color: var(--accent-gold);
+}
+
+.rating-no-score {
+  background: rgba(10, 13, 20, 0.78);
+  border: 1px solid var(--border-subtle);
+  color: var(--text-muted);
+}
+
+.rating-star-icon {
+  font-size: 0.85rem;
+  color: var(--accent-gold);
+  line-height: 1;
+}
+
+.rating-value {
+  line-height: 1;
+}
+
+.movie-card-content {
+  padding: 0.85rem 0.9rem;
+  display: flex;
+  flex-direction: column;
+  flex: 1;
+  justify-content: space-between;
+  gap: 0.45rem;
+}
+
+.movie-card-title {
+  font-size: 0.95rem;
+  font-weight: 600;
+  color: var(--text-primary);
+  line-height: 1.35;
+  display: -webkit-box;
+  -webkit-line-clamp: 2;
+  -webkit-box-orient: vertical;
+  overflow: hidden;
+  transition: color 0.2s ease;
+}
+
+.movie-card:hover .movie-card-title {
+  color: var(--accent-gold);
+}
+
+.movie-card-meta {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  font-size: 0.8rem;
+  color: var(--text-muted);
+}
+
+.movie-card-year {
+  font-weight: 500;
+}
+
+/* --- Movie Skeletons --- */
+.movie-skeleton-card {
+  border-radius: 12px;
+  overflow: hidden;
+  display: flex;
+  flex-direction: column;
+  height: 100%;
+}
+
+.movie-skeleton-poster {
+  width: 100%;
+  aspect-ratio: 2 / 3;
+  border-radius: 0;
+}
+
+.movie-skeleton-content {
+  padding: 0.85rem 0.9rem;
+  display: flex;
+  flex-direction: column;
+  gap: 0.6rem;
+}
+
+.movie-skeleton-title {
+  height: 16px;
+  width: 82%;
+}
+
+.movie-skeleton-meta {
+  height: 14px;
+  width: 45%;
+}
+
+/* --- Pagination --- */
+.pagination-container {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 1.25rem;
+  margin: 2.5rem 0 1.5rem;
+  padding: 1rem;
+}
+
+.pagination-btn {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.5rem;
+  padding: 0.55rem 1.15rem;
+  border-radius: 8px;
+  border: 1px solid var(--border-subtle);
+  background: var(--bg-card);
+  color: var(--text-primary);
+  cursor: pointer;
+  transition: all 0.2s ease;
+  font-family: inherit;
+  font-size: 0.9rem;
+}
+
+.pagination-btn:hover:not(:disabled) {
+  background: var(--bg-card-hover);
+  border-color: var(--accent-gold);
+  color: var(--accent-gold);
+  transform: translateY(-1px);
+}
+
+.pagination-btn:disabled {
+  opacity: 0.4;
+  cursor: not-allowed;
+}
+
+.pagination-arrow {
+  font-size: 1rem;
+  line-height: 1;
+}
+
+.pagination-label {
+  font-size: 0.92rem;
+  font-weight: 600;
+  color: var(--text-secondary);
+  min-width: 110px;
+  text-align: center;
+}
+
