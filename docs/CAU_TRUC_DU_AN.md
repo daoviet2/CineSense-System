@@ -1,6 +1,6 @@
 # Cấu Trúc Dự Án — Movie Recommendation App
 
-Đề xuất theo mô hình **2 thư mục riêng biệt** (frontend / backend) trong cùng 1 monorepo, dễ deploy độc lập.
+Mô hình **2 thư mục riêng biệt** (frontend / backend) trong cùng 1 monorepo, dễ deploy độc lập.
 
 ```
 movie-recommendation-app/
@@ -12,31 +12,44 @@ movie-recommendation-app/
 │   │   │   ├── login/page.tsx         # Trang đăng nhập
 │   │   │   ├── signup/page.tsx        # Trang đăng ký
 │   │   │   ├── profile/page.tsx       # Trang thông tin tài khoản
-│   │   │   ├── movie/[id]/page.tsx    # Trang chi tiết phim (Giai đoạn 2)
+│   │   │   ├── movie/[id]/page.tsx    # Trang chi tiết phim (Giai đoạn 2, [id] = tmdbId)
 │   │   │   ├── watchlist/page.tsx     # Trang danh sách theo dõi (Giai đoạn 3)
 │   │   │   ├── history/page.tsx       # Trang lịch sử xem (Giai đoạn 3)
 │   │   │   ├── recommendations/page.tsx # Trang gợi ý phim (Giai đoạn 4)
 │   │   │   ├── layout.tsx
-│   │   │   └── page.tsx               # Trang chủ
+│   │   │   └── page.tsx               # Trang chủ: danh sách phim nổi bật, tìm kiếm, lọc thể loại, phân trang (D21)
 │   │   ├── components/
 │   │   │   ├── Navbar.tsx             # Thanh điều hướng với auth state
 │   │   │   ├── MovieCard.tsx          # Card phim (Giai đoạn 2)
-│   │   │   ├── MovieGrid.tsx          # Grid phim (Giai đoạn 2)
+│   │   │   ├── MovieGrid.tsx          # Grid phim, loading skeleton & error state (Giai đoạn 2)
+│   │   │   ├── SearchBar.tsx          # Thanh tìm kiếm phim có debounce (Giai đoạn 2)
+│   │   │   ├── GenreFilter.tsx        # Bộ lọc thể loại phim dạng chips (Giai đoạn 2)
+│   │   │   ├── Pagination.tsx         # Phân trang trang chủ (Giai đoạn 2)
 │   │   │   ├── WatchlistButton.tsx    # Nút thêm watchlist (Giai đoạn 3)
 │   │   │   ├── RecommendationSection.tsx # Khối gợi ý (Giai đoạn 4)
 │   │   │   └── providers/
 │   │   │       └── QueryProvider.tsx  # TanStack React Query Provider
 │   │   ├── hooks/
 │   │   │   ├── useAuth.ts             # Hook quản lý auth & session
+│   │   │   ├── useMovies.ts           # Hook query danh sách phim phân trang
+│   │   │   ├── useMovie.ts            # Hook query chi tiết phim
+│   │   │   ├── useGenres.ts           # Hook query danh sách thể loại phim
 │   │   │   ├── useWatchlist.ts
 │   │   │   └── useRecommendations.ts
 │   │   ├── lib/
-│   │   │   └── authErrors.ts          # Mapping mã lỗi D3 sang thông điệp tiếng Việt
+│   │   │   ├── authErrors.ts          # Mapping mã lỗi D3 Auth sang tiếng Việt
+│   │   │   ├── movieErrors.ts         # Mapping mã lỗi D3 Movie sang tiếng Việt
+│   │   │   ├── movieFormat.ts         # Hàm thuần định dạng điểm số, năm phát hành
+│   │   │   ├── moviePagination.ts     # Hàm thuần tính toán trạng thái phân trang
+│   │   │   ├── movieHome.ts           # Hàm thuần tiêu đề và thông điệp trang chủ
+│   │   │   ├── movieDetail.ts         # Hàm thuần parse ID và fallback overview
+│   │   │   └── movieQuery.ts          # Hàm thuần parse & serialize URL search params (D16)
 │   │   ├── schemas/
 │   │   │   └── auth.schema.ts         # Zod schemas validation client-side
 │   │   ├── services/                  # Gọi API backend (credentials: include)
+│   │   │   ├── apiClient.ts           # Helper request HTTP dùng chung và xử lý lỗi D3
 │   │   │   ├── authService.ts         # Service xác thực & profile
-│   │   │   ├── movieService.ts
+│   │   │   ├── movieService.ts        # Service lấy danh sách phim, chi tiết, thể loại (Giai đoạn 2)
 │   │   │   ├── historyService.ts
 │   │   │   └── watchlistService.ts
 │   │   ├── store/                     # Zustand state management
@@ -44,13 +57,21 @@ movie-recommendation-app/
 │   │   ├── styles/
 │   │   │   └── globals.css            # Dark cinema theme & glassmorphism
 │   │   ├── types/
-│   │   │   └── auth.ts                # TypeScript definitions cho Auth/User
+│   │   │   ├── auth.ts                # TypeScript definitions cho Auth/User
+│   │   │   └── movie.ts               # DTO definitions cho Movie, Genre, Pagination
 │   │   └── middleware.ts              # Route Guard kiểm tra cookie access_token (D11)
-│   ├── tests/
+│   ├── tests/                         # 11 test suites / 78 unit tests
 │   │   ├── auth.schema.test.ts
 │   │   ├── authErrors.test.ts
 │   │   ├── authService.test.ts
-│   │   └── authStore.test.ts
+│   │   ├── authStore.test.ts
+│   │   ├── movieDetail.test.ts
+│   │   ├── movieErrors.test.ts
+│   │   ├── movieFormat.test.ts
+│   │   ├── movieHome.test.ts
+│   │   ├── moviePagination.test.ts
+│   │   ├── movieQuery.test.ts
+│   │   └── movieService.test.ts
 │   ├── .env.local
 │   ├── next.config.js
 │   ├── tsconfig.json
@@ -63,12 +84,13 @@ movie-recommendation-app/
 │   ├── src/
 │   │   ├── config/
 │   │   │   ├── db.ts                  # PrismaClient singleton
-│   │   │   ├── env.ts                 # Biến môi trường Zod fail-fast
-│   │   │   └── security.ts            # Hằng số bảo mật (bcrypt rounds, cookie, token)
+│   │   │   ├── env.ts                 # Biến môi trường Zod fail-fast (JWT, TMDB, CORS, Redis)
+│   │   │   ├── security.ts            # Hằng số bảo mật (bcrypt rounds, cookie, token)
+│   │   │   └── tmdb.ts                # Cấu hình TMDB (timeouts, image base URL, limits D22)
 │   │   ├── middlewares/
 │   │   │   ├── auth.middleware.ts     # Middleware requireAuth xác thực JWT
-│   │   │   ├── errorHandler.ts        # AppError & xử lý lỗi chuẩn hóa D3
-│   │   │   └── rateLimiter.ts         # In-memory rate limiting cho login & register
+│   │   │   ├── errorHandler.ts        # AppError & xử lý lỗi chuẩn hóa D3 (bao gồm 502/504)
+│   │   │   └── rateLimiter.ts         # In-memory rate limiting cho auth và movies
 │   │   ├── modules/
 │   │   │   ├── auth/
 │   │   │   │   ├── auth.controller.ts # Controller xử lý HTTP request/response
@@ -82,10 +104,18 @@ movie-recommendation-app/
 │   │   │   │   ├── user.routes.ts     # Route mapping (/users/me)
 │   │   │   │   ├── user.schema.ts     # Zod schema updateUser
 │   │   │   │   └── user.types.ts      # Data transfer objects (UserPublicDto)
-│   │   │   ├── movie/                 # Giai đoạn 2
-│   │   │   │   ├── movie.controller.ts
-│   │   │   │   ├── movie.service.ts   # Gọi TMDB API + cache DB -> enqueue embed-movie
-│   │   │   │   └── movie.routes.ts
+│   │   │   ├── movie/                 # Giai đoạn 2 (Tích hợp dữ liệu phim)
+│   │   │   │   ├── movie.controller.ts # Controller xử lý /movies, /movies/:tmdbId, /genres
+│   │   │   │   ├── movie.service.ts   # Cache-aside phim, proxy danh sách, genres, seam publisher (D15/D16/D20)
+│   │   │   │   ├── movie.repository.ts # Repository interface & Prisma implementation (transaction, race-safe D15)
+│   │   │   │   ├── movie.routes.ts    # Route mapping (/movies, /movies/:tmdbId)
+│   │   │   │   ├── genre.routes.ts    # Route mapping (/genres)
+│   │   │   │   ├── movie.schema.ts    # Zod schema validation query & params
+│   │   │   │   ├── movie.types.ts     # DTO definitions (MovieSummaryDto, MovieDetailDto, GenreDto)
+│   │   │   │   ├── movie.events.ts    # Seam MovieEventPublisher & NoopMovieEventPublisher (D20)
+│   │   │   │   ├── tmdb.client.ts     # TMDB Client Adapter (ITmdbClient, timeout, key handling D13)
+│   │   │   │   ├── tmdb.mapper.ts     # Hàm thuần mapping TMDB payload -> DB / DTO (D19)
+│   │   │   │   └── tmdb.schema.ts     # Zod schema parse payload từ TMDB API (D13)
 │   │   │   ├── history/               # Giai đoạn 3
 │   │   │   │   ├── history.controller.ts
 │   │   │   │   ├── history.service.ts # Ghi history -> enqueue recalculate-user-profile
@@ -123,11 +153,11 @@ movie-recommendation-app/
 │   │   │   ├── hash.ts                # Bcrypt helper (cost 12, max 72 bytes)
 │   │   │   ├── jwt.ts                 # JWT helper (HS256 pinned)
 │   │   │   └── cookie.ts              # Quản lý HttpOnly cookie
-│   │   ├── app.ts                     # Express createApp factory
+│   │   ├── app.ts                     # Express createApp factory (injectable dependencies)
 │   │   └── server.ts                  # HTTP server & graceful shutdown
 │   ├── tests/
-│   │   ├── unit/                      # 12 test suites / 90 tests
-│   │   └── integration/               # Kiểm thử tích hợp luồng DB biệt lập
+│   │   ├── unit/                      # 17 test suites / 140 tests (auth, user, movie, tmdb)
+│   │   └── integration/               # 3 test suites / 21 tests (auth, movie, movie.repository trên cinesense_test)
 │   ├── .env
 │   ├── tsconfig.json
 │   └── package.json
@@ -174,7 +204,7 @@ movie-recommendation-app/
 - **docs/**: chứa toàn bộ tài liệu kế hoạch, để cả team cùng tham chiếu
 - **docker-compose.yml**: chạy toàn bộ hệ thống (DB + Redis + backend + frontend) chỉ với 1 lệnh khi dev local
 
-## Quy ước đặt tên (gợi ý)
+## Quy ước đặt tên
 - Route API: số nhiều, RESTful — `GET /movies`, `POST /watchlist`, `DELETE /history/:id`
 - Bảng DB: số nhiều, snake_case — `users`, `movies`, `watch_history`, `watchlists`, `ratings`
 - Tên queue/job: kebab-case, mô tả hành động — `recalculate-user-profile`, `embed-movie`, `rebuild-similarity-matrix`

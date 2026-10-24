@@ -46,7 +46,11 @@ Copy-Item frontend/.env.local.example frontend/.env.local
 - `JWT_SECRET`: Khóa bí mật ký JWT (yêu cầu tối thiểu 32 ký tự, sinh bằng `openssl rand -base64 48`)
 - `JWT_EXPIRES_IN`: Thời hạn của access token (mặc định `7d`)
 - `FRONTEND_ORIGIN`: Địa chỉ nguồn frontend được phép truy cập CORS (`http://localhost:3000` hoặc `http://localhost:3002`)
-- `TMDB_API_KEY`: API key từ The Movie Database (cho Giai đoạn 2)
+- `TMDB_API_KEY`: API key v3 từ The Movie Database (bắt buộc, fail-fast nếu thiếu)
+- `TMDB_BASE_URL`: URL gốc API TMDB (mặc định `https://api.themoviedb.org/3`)
+- `TMDB_IMAGE_BASE_URL`: URL CDN ảnh TMDB (mặc định `https://image.tmdb.org/t/p`)
+- `TMDB_LANGUAGE`: Ngôn ngữ lấy metadata (mặc định `vi-VN`, tự động fallback `en-US` nếu overview rỗng)
+- `TMDB_TIMEOUT_MS`: Thời gian chờ tối đa khi gọi TMDB (mặc định `5000` ms)
 
 ### 2. Khởi động hệ thống với Docker Compose
 
@@ -73,7 +77,8 @@ docker compose exec backend npx prisma migrate status
 ### 4. Truy cập các dịch vụ
 
 - **Frontend App**: `http://localhost:3002` (hoặc cổng cấu hình trong `FRONTEND_PORT`)
-  - Trang chủ: `/`
+  - Trang chủ: `/` (danh sách phim nổi bật, tìm kiếm theo tên, lọc theo thể loại, phân trang)
+  - Trang chi tiết phim: `/movie/[id]` (xem chi tiết phim theo TMDB ID, công khai)
   - Đăng nhập: `/login`
   - Đăng ký: `/signup`
   - Quản lý hồ sơ: `/profile` (được bảo vệ bởi Route Guard Middleware)
@@ -87,6 +92,8 @@ docker compose exec backend npx prisma migrate status
 
 ## Kiểm thử hệ thống (Testing)
 
+> **Lưu ý quan trọng**: Tất cả unit test và integration test được thiết kế cô lập, **tuyệt đối không gọi tới TMDB API thật** (sử dụng Fake TMDB Client hoặc Mock Fetch). Không phụ thuộc kết nối Internet và không rò rỉ API Key khi chạy kiểm thử.
+
 ### Backend Tests
 
 Chạy kiểm thử unit và kiểm thử tích hợp (integration) bên trong container backend:
@@ -95,10 +102,10 @@ Chạy kiểm thử unit và kiểm thử tích hợp (integration) bên trong c
 # Typecheck TypeScript
 docker compose exec backend npm run typecheck
 
-# Chạy toàn bộ Unit Tests (90 tests)
+# Chạy toàn bộ Unit Tests (17 test suites / 140 tests)
 docker compose exec backend npm run test:unit
 
-# Chạy Integration Tests luồng Auth/Users trên DB test biệt lập (7 tests)
+# Chạy Integration Tests luồng Auth & Movie trên DB test biệt lập cinesense_test (3 suites / 21 tests)
 docker compose exec backend npm run test:integration
 ```
 
@@ -110,7 +117,7 @@ Chạy kiểm thử cho client application (trong thư mục `frontend/`):
 cd frontend
 npm run typecheck
 npm run lint
-npm test
+npm test            # 11 test suites / 78 tests pass
 npm run build
 ```
 
