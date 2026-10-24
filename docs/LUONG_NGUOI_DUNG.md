@@ -20,7 +20,7 @@ flowchart TD
 **Chi tiết bước:**
 1. Người dùng mới bấm "Đăng ký" → nhập tên, email, mật khẩu
 2. Backend hash mật khẩu (bcrypt), lưu vào DB
-3. Hệ thống sinh JWT (hoặc session) → lưu ở client (httpOnly cookie hoặc localStorage)
+3. Hệ thống sinh JWT → lưu ở client trong httpOnly cookie (Quyết định D1)
 4. Người dùng cũ bấm "Đăng nhập" → xác thực email/mật khẩu → nhận JWT
 5. (Tùy chọn) "Quên mật khẩu" → gửi email chứa link reset kèm token có hạn (ví dụ 15 phút)
 6. Sau đăng nhập, người dùng có thể vào trang **Profile** để cập nhật tên/avatar
