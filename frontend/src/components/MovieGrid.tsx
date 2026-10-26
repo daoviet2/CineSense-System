@@ -1,6 +1,7 @@
 'use client';
 
 import React from 'react';
+import Link from 'next/link';
 import { MovieCard } from '@/components/MovieCard';
 import { getMovieErrorMessage } from '@/lib/movieErrors';
 import type { MovieSummary } from '@/types/movie';
@@ -26,13 +27,19 @@ export function MovieGrid({
   if (error) {
     const message = getMovieErrorMessage(error);
     return (
-      <div className="movie-grid-status-container" role="alert" data-testid="movie-grid-error">
+      <div
+        className="movie-grid-status-container"
+        role="alert"
+        aria-live="assertive"
+        data-testid="movie-grid-error"
+      >
         <div className="movie-error-card glass-panel">
+          {/* Error icon */}
           <div className="movie-error-icon" aria-hidden="true">
             <svg
               viewBox="0 0 24 24"
-              width="48"
-              height="48"
+              width="52"
+              height="52"
               fill="none"
               stroke="currentColor"
               strokeWidth="1.5"
@@ -41,7 +48,7 @@ export function MovieGrid({
             >
               <circle cx="12" cy="12" r="10" />
               <line x1="12" y1="8" x2="12" y2="12" />
-              <line x1="12" y1="16" x2="12.01" y2="16" />
+              <circle cx="12" cy="16" r="0.5" fill="currentColor" />
             </svg>
           </div>
           <h3 className="movie-error-title">Đã xảy ra lỗi</h3>
@@ -51,6 +58,7 @@ export function MovieGrid({
               type="button"
               className="btn btn-primary movie-retry-btn"
               onClick={onRetry}
+              aria-label="Thử tải lại danh sách phim"
             >
               Thử lại
             </button>
@@ -64,9 +72,18 @@ export function MovieGrid({
   if (isLoading) {
     const count = Math.max(1, skeletonCount);
     return (
-      <div className="movie-grid" aria-busy="true" aria-label="Đang tải danh sách phim" data-testid="movie-grid-loading">
+      <div
+        className="movie-grid"
+        aria-busy="true"
+        aria-label="Đang tải danh sách phim"
+        data-testid="movie-grid-loading"
+      >
         {Array.from({ length: count }).map((_, index) => (
-          <div key={`skeleton-${index}`} className="movie-skeleton-card glass-panel" aria-hidden="true">
+          <div
+            key={`skeleton-${index}`}
+            className="movie-skeleton-card glass-panel"
+            aria-hidden="true"
+          >
             <div className="skeleton-box movie-skeleton-poster" />
             <div className="movie-skeleton-content">
               <div className="skeleton-box movie-skeleton-title" />
@@ -78,19 +95,23 @@ export function MovieGrid({
     );
   }
 
-  // Trạng thái rỗng (Empty state)
+  // Trạng thái rỗng (Empty state) — luôn có CTA action
   if (!movies || movies.length === 0) {
     return (
-      <div className="movie-grid-status-container" data-testid="movie-grid-empty">
+      <div
+        className="movie-grid-status-container"
+        data-testid="movie-grid-empty"
+      >
         <div className="movie-empty-card glass-panel">
+          {/* Empty icon */}
           <div className="movie-empty-icon" aria-hidden="true">
             <svg
               viewBox="0 0 24 24"
-              width="54"
-              height="54"
+              width="56"
+              height="56"
               fill="none"
               stroke="currentColor"
-              strokeWidth="1.5"
+              strokeWidth="1.3"
               strokeLinecap="round"
               strokeLinejoin="round"
             >
@@ -106,8 +127,12 @@ export function MovieGrid({
           </div>
           <h3 className="movie-empty-title">{emptyMessage}</h3>
           <p className="movie-empty-subtitle">
-            Hãy thử tìm kiếm với từ khóa khác hoặc duyệt danh mục thể loại khác.
+            Hãy thử từ khóa khác hoặc duyệt theo thể loại.
           </p>
+          {/* CTA action — không để màn hình trắng không có hành động */}
+          <Link href="/" className="btn btn-primary movie-retry-btn">
+            Xem phim nổi bật
+          </Link>
         </div>
       </div>
     );
@@ -115,9 +140,17 @@ export function MovieGrid({
 
   // Trạng thái thành công: hiển thị danh sách phim
   return (
-    <div className="movie-grid" data-testid="movie-grid-list">
-      {movies.map((movie) => (
-        <MovieCard key={movie.tmdbId} movie={movie} />
+    <div
+      className="movie-grid"
+      aria-label="Danh sách phim"
+      data-testid="movie-grid-list"
+    >
+      {movies.map((movie, index) => (
+        <MovieCard
+          key={movie.tmdbId}
+          movie={movie}
+          priority={index < 6}
+        />
       ))}
     </div>
   );

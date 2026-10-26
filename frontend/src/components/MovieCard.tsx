@@ -8,9 +8,11 @@ import type { MovieSummary } from '@/types/movie';
 
 export interface MovieCardProps {
   movie: MovieSummary;
+  /** True for above-the-fold cards (first ~6) to avoid LCP delay */
+  priority?: boolean;
 }
 
-export function MovieCard({ movie }: MovieCardProps) {
+export function MovieCard({ movie, priority = false }: MovieCardProps) {
   const [hasImageError, setHasImageError] = useState(false);
 
   const ratingText = formatRating(movie.averageRating);
@@ -19,11 +21,14 @@ export function MovieCard({ movie }: MovieCardProps) {
   const showPoster = Boolean(movie.posterUrl) && !hasImageError;
 
   return (
-    <article className="movie-card glass-panel" data-testid={`movie-card-${movie.tmdbId}`}>
+    <article
+      className="movie-card glass-panel"
+      data-testid={`movie-card-${movie.tmdbId}`}
+    >
       <Link
         href={`/movie/${movie.tmdbId}`}
         className="movie-card-link"
-        aria-label={`${movie.title} (${releaseYear})`}
+        aria-label={`${movie.title}${releaseYear !== 'Không rõ' ? ` (${releaseYear})` : ''}`}
       >
         <div className="movie-poster-wrapper">
           {showPoster && movie.posterUrl ? (
@@ -31,10 +36,11 @@ export function MovieCard({ movie }: MovieCardProps) {
               src={movie.posterUrl}
               alt={`Poster phim ${movie.title}`}
               fill
-              sizes="(max-width: 640px) 50vw, (max-width: 1024px) 33vw, 20vw"
+              sizes="(max-width: 640px) 50vw, (max-width: 1024px) 25vw, 18vw"
               className="movie-poster-img"
               onError={() => setHasImageError(true)}
-              loading="lazy"
+              loading={priority ? 'eager' : 'lazy'}
+              priority={priority}
             />
           ) : (
             <div className="movie-poster-fallback" aria-hidden="true">
@@ -43,7 +49,7 @@ export function MovieCard({ movie }: MovieCardProps) {
                 viewBox="0 0 24 24"
                 fill="none"
                 stroke="currentColor"
-                strokeWidth="1.5"
+                strokeWidth="1.3"
                 strokeLinecap="round"
                 strokeLinejoin="round"
               >
@@ -63,8 +69,11 @@ export function MovieCard({ movie }: MovieCardProps) {
           <div
             className={`movie-rating-badge ${hasRating ? 'rating-has-score' : 'rating-no-score'}`}
             title={`Đánh giá: ${ratingText}`}
+            aria-label={`Điểm đánh giá: ${ratingText}`}
           >
-            {hasRating && <span className="rating-star-icon" aria-hidden="true">★</span>}
+            {hasRating && (
+              <span className="rating-star-icon" aria-hidden="true">★</span>
+            )}
             <span className="rating-value">{ratingText}</span>
           </div>
         </div>
