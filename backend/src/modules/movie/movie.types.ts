@@ -47,3 +47,8 @@ export interface PagedResult<T> {
 export interface MovieEventPublisher {
   movieCached(movie: MovieDetailDto): Promise<void>;
 }
+
+export interface IMovieResolver {
+  resolveForWrite(tmdbId: number): Promise<{ id: string }>;
+  findCachedId(tmdbId: number): Promise<string | null>;
+}

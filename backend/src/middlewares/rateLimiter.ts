@@ -1,5 +1,6 @@
 import rateLimit, { RateLimitRequestHandler } from 'express-rate-limit';
 import {
+  RATE_LIMIT_ACTIVITY_WRITE_MAX,
   RATE_LIMIT_LOGIN_MAX,
   RATE_LIMIT_MOVIES_MAX,
   RATE_LIMIT_REGISTER_MAX,
@@ -48,5 +49,12 @@ export function createLoginRateLimiter(): RateLimitRequestHandler {
 
 /** Factory: in-memory limiter for public TMDB-backed movie endpoints (D16). */
 export function createMoviesRateLimiter(max = RATE_LIMIT_MOVIES_MAX): RateLimitRequestHandler {
+  return makeHandler(max, 'TOO_MANY_REQUESTS');
+}
+
+/** Factory: in-memory limiter for activity write operations (POST /history, POST /watchlist) (D34). */
+export function createActivityWriteRateLimiter(
+  max = RATE_LIMIT_ACTIVITY_WRITE_MAX
+): RateLimitRequestHandler {
   return makeHandler(max, 'TOO_MANY_REQUESTS');
 }

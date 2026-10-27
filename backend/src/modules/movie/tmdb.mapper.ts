@@ -3,6 +3,7 @@ import {
   GenreDto,
   MovieCacheInput,
   MovieSummaryDto,
+  MovieWithGenres,
   PagedResult,
 } from './movie.types.js';
 import {
@@ -62,3 +63,39 @@ export const mapTmdbMoviePage = (
   totalPages: page.total_pages,
   totalResults: page.total_results,
 });
+
+export type CachedMovieGenreInput =
+  | { id: number; name?: string }
+  | { genreId: number };
+
+/**
+ * Pure mapper converting a cached movie record with genres into a MovieSummaryDto.
+ * Implements architectural decision D31:
+ * - releaseDate is formatted as 'YYYY-MM-DD' or null if absent.
+ * - genreIds is an array of TMDB genre IDs extracted from either { id } or { genreId }.
+ */
+export const toMovieSummaryFromCached = (
+  movie: Pick<
+    MovieWithGenres,
+    'tmdbId' | 'title' | 'posterUrl' | 'releaseDate' | 'averageRating'
+  > & {
+    genres: CachedMovieGenreInput[];
+  }
+): MovieSummaryDto => {
+  let releaseDate: string | null = null;
+  if (movie.releaseDate) {
+    releaseDate =
+      movie.releaseDate instanceof Date
+        ? movie.releaseDate.toISOString().slice(0, 10)
+        : new Date(movie.releaseDate).toISOString().slice(0, 10);
+  }
+
+  return {
+    tmdbId: movie.tmdbId,
+    title: movie.title,
+    posterUrl: movie.posterUrl,
+    releaseDate,
+    averageRating: movie.averageRating,
+    genreIds: movie.genres.map((g) => ('id' in g ? g.id : g.genreId)),
+  };
+};

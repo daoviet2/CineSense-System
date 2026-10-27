@@ -33,5 +33,8 @@ export const RATE_LIMIT_LOGIN_MAX = 20;
 /** Maximum requests per window for the public TMDB-backed movies endpoints. */
 export const RATE_LIMIT_MOVIES_MAX = 300;
 
+/** Maximum write requests per window for activity endpoints (POST /history, POST /watchlist) (D34). */
+export const RATE_LIMIT_ACTIVITY_WRITE_MAX = 60;
+
 /** Cookie name for the access token. */
 export const ACCESS_TOKEN_COOKIE_NAME = 'access_token';

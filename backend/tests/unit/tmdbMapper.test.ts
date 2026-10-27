@@ -2,6 +2,7 @@ import {
   mapTmdbMoviePage,
   mapTmdbMovieToCacheInput,
   mapTmdbMovieSummary,
+  toMovieSummaryFromCached,
 } from '../../src/modules/movie/tmdb.mapper.js';
 import {
   tmdbGenreListSchema,
@@ -121,5 +122,50 @@ describe('TMDB mapper', () => {
       genreIds: [28],
     });
     expect(page).toMatchObject({ page: 2, totalPages: 4, totalResults: 61, items: [{ tmdbId: 603 }] });
+  });
+});
+
+describe('toMovieSummaryFromCached', () => {
+  it('maps a cached movie with Date releaseDate and GenreDto array to MovieSummaryDto', () => {
+    const summary = toMovieSummaryFromCached({
+      tmdbId: 603,
+      title: 'The Matrix',
+      posterUrl: 'https://image.tmdb.org/t/p/w500/poster.jpg',
+      releaseDate: new Date('1999-03-30T00:00:00.000Z'),
+      averageRating: 8.7,
+      genres: [
+        { id: 28, name: 'Action' },
+        { id: 878, name: 'Science Fiction' },
+      ],
+    });
+
+    expect(summary).toEqual({
+      tmdbId: 603,
+      title: 'The Matrix',
+      posterUrl: 'https://image.tmdb.org/t/p/w500/poster.jpg',
+      releaseDate: '1999-03-30',
+      averageRating: 8.7,
+      genreIds: [28, 878],
+    });
+  });
+
+  it('maps null releaseDate to null and handles { genreId } relation shapes', () => {
+    const summary = toMovieSummaryFromCached({
+      tmdbId: 604,
+      title: 'The Matrix Reloaded',
+      posterUrl: null,
+      releaseDate: null,
+      averageRating: 7.2,
+      genres: [{ genreId: 28 }, { genreId: 878 }],
+    });
+
+    expect(summary).toEqual({
+      tmdbId: 604,
+      title: 'The Matrix Reloaded',
+      posterUrl: null,
+      releaseDate: null,
+      averageRating: 7.2,
+      genreIds: [28, 878],
+    });
   });
 });
