@@ -29,4 +29,12 @@ export interface AddWatchlistResult {
   created: boolean;
 }
 
+/**
+ * Watchlist status of a movie for a specific user (Decision D26).
+ */
+export interface WatchlistStatusDto {
+  inWatchlist: boolean;
+  addedAt: Date | null;
+}
+
 export type PagedWatchlistResult = PagedResult<WatchlistItemDto>;
