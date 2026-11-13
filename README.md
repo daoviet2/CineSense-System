@@ -45,7 +45,7 @@ Copy-Item frontend/.env.local.example frontend/.env.local
 - `REDIS_URL`: Kết nối Redis (`redis://redis:6379`)
 - `JWT_SECRET`: Khóa bí mật ký JWT (yêu cầu tối thiểu 32 ký tự, sinh bằng `openssl rand -base64 48`)
 - `JWT_EXPIRES_IN`: Thời hạn của access token (mặc định `7d`)
-- `FRONTEND_ORIGIN`: Địa chỉ nguồn frontend được phép truy cập CORS (`http://localhost:3000` hoặc `http://localhost:3002`)
+- `FRONTEND_ORIGIN`: Địa chỉ nguồn frontend được phép truy cập CORS (`http://localhost:3000`)
 - `TMDB_API_KEY`: API key v3 từ The Movie Database (bắt buộc, fail-fast nếu thiếu)
 - `TMDB_BASE_URL`: URL gốc API TMDB (mặc định `https://api.themoviedb.org/3`)
 - `TMDB_IMAGE_BASE_URL`: URL CDN ảnh TMDB (mặc định `https://image.tmdb.org/t/p`)
@@ -57,8 +57,6 @@ Copy-Item frontend/.env.local.example frontend/.env.local
 Kiểm tra cú pháp Compose và khởi chạy toàn bộ 4 containers:
 
 ```powershell
-# Chọn cổng frontend nếu cổng 3000 đang bận trên máy host
-$env:FRONTEND_PORT = "3002"
 
 # Build và khởi chạy background
 docker compose up --build -d

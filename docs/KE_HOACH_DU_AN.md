@@ -16,7 +16,7 @@ Xây dựng ứng dụng web cho phép người dùng:
 | Watchlist | Thêm/xóa phim, hiển thị danh sách |
 | Recommendation | Hybrid: thể loại + phim tương tự + rating + lịch sử gần đây |
 
-## 3. Công nghệ đề xuất
+## 3. Công nghệ
 
 ### 3.1 Frontend
 - **React (Next.js)** — SSR/SEO tốt, routing sẵn, dễ tách trang login/profile/watchlist
