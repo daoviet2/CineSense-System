@@ -28,6 +28,10 @@ import { createHistoryRepository } from './modules/history/history.repository.js
 import { createHistoryService, IHistoryService } from './modules/history/history.service.js';
 import { createHistoryController } from './modules/history/history.controller.js';
 import { createHistoryRouter } from './modules/history/history.routes.js';
+import { createWatchlistRepository } from './modules/watchlist/watchlist.repository.js';
+import { createWatchlistService, IWatchlistService } from './modules/watchlist/watchlist.service.js';
+import { createWatchlistController } from './modules/watchlist/watchlist.controller.js';
+import { createWatchlistRouter } from './modules/watchlist/watchlist.routes.js';
 
 export interface AppDependencies {
   movieService?: IMovieService;
@@ -35,9 +39,11 @@ export interface AppDependencies {
   eventPublisher?: MovieEventPublisher;
   moviesRateLimiter?: RequestHandler;
   historyService?: IHistoryService;
+  watchlistService?: IWatchlistService;
   movieResolver?: IMovieResolver;
   activityPublisher?: UserActivityEventPublisher;
   activityWriteRateLimiter?: RequestHandler;
+  watchlistWriteRateLimiter?: RequestHandler;
 }
 
 export function createApp(dependencies: AppDependencies = {}): Application {
@@ -138,6 +144,24 @@ export function createApp(dependencies: AppDependencies = {}): Application {
     createHistoryRouter({
       controller: historyController,
       writeRateLimiter: activityWriteRateLimiter,
+    })
+  );
+
+  // Use a separate in-memory counter for Watchlist writes (D34).
+  const watchlistService =
+    dependencies.watchlistService ??
+    createWatchlistService({
+      watchlistRepo: createWatchlistRepository(),
+      movieResolver,
+      activityPublisher:
+        dependencies.activityPublisher ?? new NoopUserActivityEventPublisher(),
+    });
+  app.use(
+    '/watchlist',
+    createWatchlistRouter({
+      controller: createWatchlistController(watchlistService),
+      writeRateLimiter:
+        dependencies.watchlistWriteRateLimiter ?? createActivityWriteRateLimiter(),
     })
   );
 
