@@ -5,7 +5,7 @@ import '@/styles/globals.css';
 import { QueryProvider } from '@/components/providers/QueryProvider';
 import { Navbar } from '@/components/Navbar';
 
-// Modern Dark Cinema typography — Inter (UI/UX Pro Max design system)
+// Modern Dark Cinema typography
 const inter = Inter({
   subsets: ['latin', 'latin-ext'],
   weight: ['300', '400', '500', '600', '700', '800'],
