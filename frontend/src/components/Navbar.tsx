@@ -63,6 +63,12 @@ export function Navbar() {
           </div>
         ) : status === 'authenticated' && user ? (
           <div className="user-profile-menu" id="nav-user-menu">
+            <Link href="/history" className="activity-nav-link">
+              Lịch sử
+            </Link>
+            <Link href="/watchlist" className="activity-nav-link">
+              Watchlist
+            </Link>
             <Link
               href="/profile"
               id="nav-profile-link"

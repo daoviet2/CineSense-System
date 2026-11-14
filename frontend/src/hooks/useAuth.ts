@@ -1,11 +1,14 @@
 'use client';
 
 import { useCallback, useEffect } from 'react';
+import { useQueryClient } from '@tanstack/react-query';
 import { useAuthStore } from '@/store/authStore';
+import { clearActivityQueries } from '@/lib/activityCache';
 import { authService, AuthApiError } from '@/services/authService';
 import { LoginInput, RegisterInput, UpdateProfileInput, User } from '@/types/auth';
 
 export function useAuth() {
+  const queryClient = useQueryClient();
   const user = useAuthStore((state) => state.user);
   const status = useAuthStore((state) => state.status);
   const setUser = useAuthStore((state) => state.setUser);
@@ -88,9 +91,13 @@ export function useAuth() {
     try {
       await authService.logout();
     } finally {
-      clearAuth();
+      try {
+        await clearActivityQueries(queryClient);
+      } finally {
+        clearAuth();
+      }
     }
-  }, [setStatus, clearAuth]);
+  }, [setStatus, clearAuth, queryClient]);
 
   const updateProfile = useCallback(
     async (input: UpdateProfileInput): Promise<User> => {

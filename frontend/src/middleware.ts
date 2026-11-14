@@ -10,12 +10,11 @@ import type { NextRequest } from 'next/server';
  * - This is a UX-level route guard for immediate redirection in the edge runtime.
  * - True cryptographic authentication & authorization is enforced at the backend API layer.
  *
- * Only protects routes that exist in Phase 1 (i.e. `/profile`).
- *
- * TODO: Thêm /watchlist, /history, /recommendations vào guard khi các trang đó được tạo ở giai đoạn sau.
+ * Guards profile and Phase 3 activity routes. The backend remains the security boundary.
+ * TODO: Thêm /recommendations vào guard khi trang đó được tạo ở Giai đoạn 4.
  */
 
-const PROTECTED_ROUTES = ['/profile'];
+const PROTECTED_ROUTES = ['/profile', '/history', '/watchlist'];
 const AUTH_ROUTES = ['/login', '/signup'];
 
 export function middleware(request: NextRequest) {
