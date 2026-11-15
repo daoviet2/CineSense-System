@@ -2099,6 +2099,30 @@ a {
   border: 1px solid var(--border-subtle);
   background: var(--bg-card);
   color: var(--text-secondary);
+  min-height: 44px;
+  text-decoration: none;
+}
+
+.movie-detail-actions {
+  margin-top: var(--space-5);
+}
+
+.watchlist-control {
+  display: inline-flex;
+  flex-direction: column;
+  align-items: flex-start;
+  gap: var(--space-2);
+}
+
+.watchlist-error {
+  margin: 0;
+  color: var(--accent-red);
+  font-size: var(--text-sm);
+}
+
+.watchlist-btn:focus-visible {
+  outline: 2px solid var(--accent-indigo-hover);
+  outline-offset: 3px;
 }
 
 .watchlist-btn:hover:not(:disabled) {

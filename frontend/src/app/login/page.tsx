@@ -6,6 +6,7 @@ import { useRouter } from 'next/navigation';
 import { useAuth } from '@/hooks/useAuth';
 import { loginValidationSchema, LoginFormData } from '@/schemas/auth.schema';
 import { getAuthErrorMessage } from '@/lib/authErrors';
+import { getSafeLoginRedirect } from '@/lib/loginRedirect';
 
 export default function LoginPage() {
   const router = useRouter();
@@ -27,7 +28,7 @@ export default function LoginPage() {
   // D11: Chuyển hướng nếu người dùng đã đăng nhập
   useEffect(() => {
     if (!isAuthLoading && isAuthenticated) {
-      router.replace('/');
+      router.replace(getSafeLoginRedirect(window.location.search));
     }
   }, [isAuthenticated, isAuthLoading, router]);
 
@@ -77,7 +78,7 @@ export default function LoginPage() {
         password: validationResult.data.password,
       });
       // Chuyển hướng sau khi đăng nhập thành công
-      router.replace('/');
+      router.replace(getSafeLoginRedirect(window.location.search));
     } catch (err) {
       const friendlyMessage = getAuthErrorMessage(
         err,

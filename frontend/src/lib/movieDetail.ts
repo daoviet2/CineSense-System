@@ -40,3 +40,12 @@ export function getMovieOverviewText(overview: string | null | undefined): strin
 
   return overview.trim();
 }
+
+export function shouldRecordMovieView(
+  authenticated: boolean,
+  requestedTmdbId: number,
+  loadedTmdbId: number | undefined,
+  recordedTmdbId: number | null
+): boolean {
+  return authenticated && loadedTmdbId === requestedTmdbId && recordedTmdbId !== requestedTmdbId;
+}

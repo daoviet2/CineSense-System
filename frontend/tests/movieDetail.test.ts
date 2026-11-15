@@ -1,4 +1,4 @@
-import { getMovieOverviewText, parseMovieId } from '../src/lib/movieDetail';
+import { getMovieOverviewText, parseMovieId, shouldRecordMovieView } from '../src/lib/movieDetail';
 
 describe('movieDetail helpers', () => {
   describe('parseMovieId', () => {
@@ -50,6 +50,20 @@ describe('movieDetail helpers', () => {
       expect(getMovieOverviewText(undefined)).toBe(fallback);
       expect(getMovieOverviewText('')).toBe(fallback);
       expect(getMovieOverviewText('   ')).toBe(fallback);
+    });
+  });
+
+  describe('shouldRecordMovieView', () => {
+    it('records a loaded movie once for an authenticated viewer', () => {
+      expect(shouldRecordMovieView(true, 603, 603, null)).toBe(true);
+      expect(shouldRecordMovieView(true, 603, 603, 603)).toBe(false);
+    });
+
+    it('waits for authentication and the matching movie', () => {
+      expect(shouldRecordMovieView(false, 603, 603, null)).toBe(false);
+      expect(shouldRecordMovieView(true, 603, undefined, null)).toBe(false);
+      expect(shouldRecordMovieView(true, 603, 604, null)).toBe(false);
+      expect(shouldRecordMovieView(true, 604, 604, 603)).toBe(true);
     });
   });
 });

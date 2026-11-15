@@ -1,11 +1,14 @@
 'use client';
 
-import React, { useState } from 'react';
+import React, { useEffect, useRef, useState } from 'react';
 import Image from 'next/image';
 import Link from 'next/link';
 import { notFound, useParams } from 'next/navigation';
 import { useMovie } from '@/hooks/useMovie';
-import { getMovieOverviewText, parseMovieId } from '@/lib/movieDetail';
+import { useAuth } from '@/hooks/useAuth';
+import { useRecordHistory } from '@/hooks/useHistory';
+import { WatchlistButton } from '@/components/WatchlistButton';
+import { getMovieOverviewText, parseMovieId, shouldRecordMovieView } from '@/lib/movieDetail';
 import { getMovieErrorMessage } from '@/lib/movieErrors';
 import { extractReleaseYear, formatRating } from '@/lib/movieFormat';
 import { ApiClientError } from '@/services/apiClient';
@@ -21,6 +24,16 @@ export default function MovieDetailPage() {
 
   const { data: movie, isLoading, error, refetch } = useMovie(tmdbId);
   const [hasImageError, setHasImageError] = useState(false);
+  const { isAuthenticated } = useAuth();
+  const recordHistory = useRecordHistory();
+  const recordedTmdbId = useRef<number | null>(null);
+  const record = recordHistory.mutate;
+
+  useEffect(() => {
+    if (!shouldRecordMovieView(isAuthenticated, tmdbId, movie?.tmdbId, recordedTmdbId.current)) return;
+    recordedTmdbId.current = tmdbId;
+    record(tmdbId);
+  }, [isAuthenticated, tmdbId, movie?.tmdbId, record]);
 
   // If the backend/upstream returns 404 NOT_FOUND, render notFound page
   if (error instanceof ApiClientError && (error.code === 'NOT_FOUND' || error.statusCode === 404)) {
@@ -190,6 +203,10 @@ export default function MovieDetailPage() {
                 </div>
               </div>
             </header>
+
+            <div className="movie-detail-actions">
+              <WatchlistButton tmdbId={movie.tmdbId} />
+            </div>
 
             {/* Danh sách thể loại */}
             {movie.genres && movie.genres.length > 0 && (
