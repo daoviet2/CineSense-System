@@ -8,6 +8,7 @@ export interface PaginationProps {
   totalPages: number;
   onPageChange: (page: number) => void;
   disabled?: boolean;
+  ariaLabel?: string;
 }
 
 export function Pagination({
@@ -15,6 +16,7 @@ export function Pagination({
   totalPages,
   onPageChange,
   disabled = false,
+  ariaLabel = 'Phân trang danh sách phim',
 }: PaginationProps) {
   const { page, totalPages: maxPages, canPrev, canNext, pageLabel } = getPaginationState(
     currentPage,
@@ -42,7 +44,7 @@ export function Pagination({
     <nav
       className="pagination-container"
       role="navigation"
-      aria-label="Phân trang danh sách phim"
+      aria-label={ariaLabel}
       data-testid="pagination"
     >
       <button
